@@ -345,7 +345,7 @@ def create_grid_new(df):
                     if any(m):
                         obj[i,j,k]=df[m]['SV'].values[0]
     
-    return np.nan_to_num(obj)
+    return obj
 
 def conv_3d_patch(grid, scale=3): # scale = 3 for 3x3x3 patches
     shape = grid.shape
@@ -433,7 +433,6 @@ class LBP_3DT():
             feat=pd.DataFrame()
             for i in range(14):
                 df=s[0]
-                df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())
                 grid=create_grid_new(df[df['Frame']==i])
                 hist,count=compute_LBP_3D(grid)
                 feature=pd.DataFrame([np.array(hist)/count])
