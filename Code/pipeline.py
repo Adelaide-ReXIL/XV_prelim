@@ -433,9 +433,8 @@ class LBP_3DT():
                 df=s[0]
                 grid=create_grid_new(df[df['Frame']==i])
                 hist,count=compute_LBP_3D(grid)
-                print(hist,count)
                 feature=pd.DataFrame([np.array(hist)/count])
-                feat=pd.concat([feat, pd.DataFrame(feature).T], ignore_index=True)
+                feat=pd.concat([feat, pd.DataFrame(feature).T],axis=1, ignore_index=True)
             self.features.append((feat,label))
         
         return self.features
