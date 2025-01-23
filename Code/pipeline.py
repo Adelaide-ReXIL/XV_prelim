@@ -609,6 +609,7 @@ class ClusterFeatures():
 
 if __name__=='__main__':
     import os
+    import pickle
 
     logging.basicConfig(
         level=logging.DEBUG,  # Set the logging level to DEBUG
@@ -655,6 +656,18 @@ if __name__=='__main__':
         c.columns=['Frame','SV','X','Y','Z']
         dataframes.append([c,1])
 
-    lbp=LBP_4D(dataframes[:1])
 
+
+
+
+
+    lbp=LBP_4D(dataframes)
     features=lbp.extract()
+    with open('lbp','wb') as fp:
+
+        pickle.dump(features,fp)
+        logging.debug('Done writing file')
+
+
+
+
