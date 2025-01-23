@@ -414,7 +414,10 @@ def create_grid_3D(df, grid_size: tuple[int]):
 
 
         if not np.isnan(value):
-            grid[f,x, y, z] = value
+            if grid[f,x,y,z] !=np.nan:
+                grid[f,x,y,z]=(value+grid[f,x,y,z])/2
+            else:
+                grid[f,x, y, z] = value
                 
     return grid
 
