@@ -649,9 +649,9 @@ if __name__=='__main__':
         dataframe.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
 
     dataframes=[]
-    for c in dataframes:
+    for c in dataframe:
         c.columns=['Frame','SV','X','Y','Z']
-        dataframes.append([c,0])
+        dataframe.append([c,0])
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
