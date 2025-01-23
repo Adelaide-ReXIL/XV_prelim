@@ -627,13 +627,16 @@ if __name__=='__main__':
     csv_files = [fold for fold in os.listdir(csv_dir) if os.path.isdir(os.path.join(csv_dir, fold)) and 'WCH' in fold]
 
 
-    dataframes=[]
-    control=[]
-    cf=[]
+
+    csv_dir = '../Datasets/XV Clinical Data/adult_controls_from_Miami'
+    csv_files = [fold for fold in os.listdir(csv_dir) if os.path.isdir(os.path.join(csv_dir, fold))]
+
+
+    dataframe=[]
+
     for fold in csv_files:
         p=os.path.join(csv_dir, fold)
-        key=int(p.split('-')[2])-10000
-        files=[f for f in os.listdir(p) if os.path.isdir(os.path.join(p, f)) and '-LOBAR' not in f and 'WCH' in f]
+        files=[f for f in os.listdir(p) if os.path.isdir(os.path.join(p, f)) and '-LOBAR' not in f]
         curr_csv=[]
         for f in files:
             path=os.path.join(p, f)
@@ -643,27 +646,16 @@ if __name__=='__main__':
             curr_csv.extend(csv)
         
 
-        dataframes.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
-        if 'Control' in mapping[key]:
-            control.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
-        else:
-            cf.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
+        dataframe.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
+
     dataframes=[]
-    for c in control:
+    for c in dataframes:
         c.columns=['Frame','SV','X','Y','Z']
         dataframes.append([c,0])
-    for c in cf:
-        c.columns=['Frame','SV','X','Y','Z']
-        dataframes.append([c,1])
-
-
-
-
-
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbp','wb') as fp:
+    with open('lbpAd','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
