@@ -4,6 +4,9 @@ from sklearn.discriminant_analysis import StandardScaler
 import numpy as np
 from scipy import stats
 import math
+import logging
+from multiprocessing import Pool
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def global_clustering_model(controls: list) -> KMeans:
     """
@@ -274,9 +277,47 @@ def neighbours(arr,i,j,k):
     return binary_numbers
         
 
+def neighbours_4D(arr,t,i,j,k):
+    
+    binary_numbers = []
+
+    binary_numbers.append(arr[t][i-1][j][k])
+
+    binary_numbers.append(arr[t][i+1][j][k])
+
+    binary_numbers.append(arr[t][i][j-1][k])
+
+    binary_numbers.append(arr[t][i][j+1][k])
+
+    binary_numbers.append(arr[t][i][j][k-1])
+
+    binary_numbers.append(arr[t][i][j][k+1])
+
+    if t-1>=0:
+        binary_numbers.append(arr[t-1][i][j][k])
+    else:
+        binary_numbers.append(np.nan)
+
+    if t+1<=14:
+        binary_numbers.append(arr[t+1][i][j][k])
+    else:
+        binary_numbers.append(np.nan)
+
+    return binary_numbers
+        
 def bin_to_dec(arr,i,j,k, neighbour_list):
     
     binary_result = [1 if num >= arr[i,j,k] else 0 for num in neighbour_list]
+
+    binary_string = ''.join(map(str, binary_result))
+
+    decimal_number = int(binary_string,2)
+    
+    return decimal_number
+
+def bin_to_dec_4D(arr,t,i,j,k, neighbour_list):
+    
+    binary_result = [1 if num >= arr[t,i,j,k] else 0 for num in neighbour_list]
 
     binary_string = ''.join(map(str, binary_result))
 
@@ -311,23 +352,71 @@ def compute_LBP_3D(grid):
                 
     return histogram, count
 
+def compute_LBP_4D(grid):
+    
+    count = 0
+    
+    shape = grid.shape
+
+    histogram = [0] * 256
+    for t in range(1,shape[0]-1):
+        for i in range(1, shape[1]-1):
+
+            for j in range(1, shape[2]-1):
+
+                for k in range(1, shape[3]-1):
+
+                    neighbour_list = neighbours_4D(grid,t,i,j,k)  # list of neighbours
+
+                    if math.isnan(grid[t,i,j,k]) or any(math.isnan(x) for x in neighbour_list): # ignore all nan values
+                        continue
+
+                    decimal_number = bin_to_dec_4D(grid,t,i,j,k,neighbour_list) # compute LBP and output a decimal number
+                    
+                    histogram[decimal_number] += 1  
+                    
+                    count += 1  # count the total number of points contributing to LBP_3D
+                    
+    return histogram, count
+
+
 def create_grid(df, grid_size: tuple[int]):
     max_x, max_y, max_z = grid_size
-    grid = np.full((max_x+1, max_y+1, max_z+1), np.nan)
+    grid = np.full((max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
 
     for _ , row in df.iterrows():
 
         value_column_name = 'SV'
         value = row[value_column_name]
-        x = int(row['X'])
-        y = int(row['Y'])
-        z = int(row['Z'])
+        x = int(row['X']/10)
+        y = int(row['Y']/10)
+        z = int(row['Z']/10)
 
 
         if not np.isnan(value):
             grid[x, y, z] = value
             
     return grid
+
+def create_grid_3D(df, grid_size: tuple[int]):
+    max_x, max_y, max_z = grid_size
+    grid = np.full((14,max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
+    logging.debug('Initialising Empty Grid (Function)')
+    for f in range(14):
+        for _ , row in df.iterrows():
+            logging.debug('Initialising for a row (Function)')
+            value_column_name = 'SV'
+            value = row[value_column_name]
+            x = int(row['X']/10)
+            y = int(row['Y']/10)
+            z = int(row['Z']/10)
+
+
+            if not np.isnan(value):
+                grid[f,x, y, z] = value
+                
+    return grid
+
 def create_grid_new(df):
     x_len=len(df['X'].unique())
     y_len=len(df['Y'].unique())
@@ -433,14 +522,59 @@ class LBP_3DT():
             feat=pd.DataFrame()
             for i in range(14):
                 df=s[0]
-                grid=create_grid_new(df[df['Frame']==i])
+                vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
+                df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+                grid=create_grid(df[df['Frame']==i],self.gridSize)
                 hist,count=compute_LBP_3D(grid)
                 feature=pd.DataFrame([np.array(hist)/count])
                 feat=pd.concat([feat, pd.DataFrame(feature).T],axis=1, ignore_index=True)
             self.features.append((feat,label))
         
         return self.features
+class LBP_4D():
+    def __init__(self,samples):
+        self.samples=samples
+        x,y,z=-1,-1,-1
+        for s in samples:
+            x=int(math.ceil(max(x,max(abs(s[0]['X'])))))
+            y=int(math.ceil(max(y,max(abs(s[0]['Y'])))))
+            z=int(math.ceil(max(z,max(abs(s[0]['Z'])))))
+        
+        print(x,y,z)
+        self.gridSize=(x,y,z)
+        self.features=[]
 
+    def extract(self)->pd.DataFrame:
+        results = parallel_process(self.samples, self.gridSize, num_workers=4)
+
+        for feature, label in results:
+            self.features.append((feature, label))
+        
+        return self.features
+
+def parallel_process(samples,grid_size,num_workers=4):
+    with Pool(num_workers) as pool:
+        results = pool.starmap(parallel_4D, [(sample, grid_size) for sample in samples])
+    return results
+
+
+
+def parallel_4D(s,grid_size):
+    label=s[1]
+    df=s[0]
+    vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
+    df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+    logging.debug('Initialising Gird for sample')
+    grid=create_grid_3D(df,grid_size)
+    logging.debug('Initialising Grid Complete')
+
+    logging.debug('Performing 4D LBP')
+
+    hist,count=compute_LBP_4D(grid)
+    feature=pd.DataFrame([np.array(hist)/count])
+
+    logging.debug('LBP for sample complete')
+    return label,feature
 class ClusterFeatures():
 
     def __init__(self,samples):
@@ -473,3 +607,54 @@ class ClusterFeatures():
     
 
 
+if __name__=='__main__':
+    import os
+
+    logging.basicConfig(
+        level=logging.DEBUG,  # Set the logging level to DEBUG
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",  # Log message format
+    )
+
+
+    
+    mapping=pd.read_csv('../Datasets/XV Clinical Data/WCH_XV_genotypes.csv')
+    mapping.columns=['Record ID','Condition']
+    mapping=dict(zip(mapping['Record ID'],mapping['Condition']))
+
+
+    csv_dir = '../Datasets/XV Clinical Data'
+    csv_files = [fold for fold in os.listdir(csv_dir) if os.path.isdir(os.path.join(csv_dir, fold)) and 'WCH' in fold]
+
+
+    dataframes=[]
+    control=[]
+    cf=[]
+    for fold in csv_files:
+        p=os.path.join(csv_dir, fold)
+        key=int(p.split('-')[2])-10000
+        files=[f for f in os.listdir(p) if os.path.isdir(os.path.join(p, f)) and '-LOBAR' not in f and 'WCH' in f]
+        curr_csv=[]
+        for f in files:
+            path=os.path.join(p, f)
+            csv=[pd.read_csv(os.path.join(path,c)) for c in os.listdir(path) if c.endswith('_final.csv')]
+            if 'EXP' in f:
+                csv[0]['Frame']=csv[0]['Frame']+7
+            curr_csv.extend(csv)
+        
+
+        dataframes.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
+        if 'Control' in mapping[key]:
+            control.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
+        else:
+            cf.append(pd.merge(curr_csv[0], curr_csv[1], how='outer'))
+    dataframes=[]
+    for c in control:
+        c.columns=['Frame','SV','X','Y','Z']
+        dataframes.append([c,0])
+    for c in cf:
+        c.columns=['Frame','SV','X','Y','Z']
+        dataframes.append([c,1])
+
+    lbp=LBP_4D(dataframes[:1])
+
+    features=lbp.extract()
