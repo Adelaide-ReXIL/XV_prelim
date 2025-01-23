@@ -402,18 +402,19 @@ def create_grid_3D(df, grid_size: tuple[int]):
     max_x, max_y, max_z = grid_size
     grid = np.full((14,max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
     logging.debug('Initialising Empty Grid (Function)')
-    for f in range(14):
-        for _ , row in df.iterrows():
-            logging.debug('Initialising for a row (Function)')
-            value_column_name = 'SV'
-            value = row[value_column_name]
-            x = int(row['X']/10)
-            y = int(row['Y']/10)
-            z = int(row['Z']/10)
+
+    for _ , row in df.iterrows():
+        logging.debug('Initialising for a row (Function)')
+        value_column_name = 'SV'
+        value = row[value_column_name]
+        x = int(row['X']/10)
+        y = int(row['Y']/10)
+        z = int(row['Z']/10)
+        f=int(row['Frame'])
 
 
-            if not np.isnan(value):
-                grid[f,x, y, z] = value
+        if not np.isnan(value):
+            grid[f,x, y, z] = value
                 
     return grid
 
