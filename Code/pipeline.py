@@ -399,7 +399,10 @@ def create_grid(df, grid_size: tuple[int]):
     return grid
 
 def create_grid_3D(df, grid_size: tuple[int]):
-    max_x, max_y, max_z = grid_size
+    df['X']=(df['X']+abs(df['X'].min()))//10
+    df['Y']=(df['Y']+abs(df['Y'].min()))//10
+    df['Z']=(df['Z']+abs(df['Z'].min()))//10
+    max_x, max_y, max_z = df['X'].max(),df['Y'].max(),df['Z'].max()
     grid = np.full((14,max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
     logging.debug('Initialising Empty Grid (Function)')
 
@@ -407,11 +410,10 @@ def create_grid_3D(df, grid_size: tuple[int]):
         logging.debug('Initialising for a row (Function)')
         value_column_name = 'SV'
         value = row[value_column_name]
-        x = int(row['X']/10)
-        y = int(row['Y']/10)
-        z = int(row['Z']/10)
+        x = int(round(row['X']))
+        y = int(round(row['Y']))
+        z = int(round(row['Z']))
         f=int(row['Frame'])
-
 
         if not np.isnan(value):
             if not np.isnan(grid[f,x,y,z]):
@@ -527,7 +529,7 @@ class LBP_3DT():
             for i in range(14):
                 df=s[0]
                 vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
-                df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+                # df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())
                 grid=create_grid(df[df['Frame']==i],self.gridSize)
                 hist,count=compute_LBP_3D(grid)
                 feature=pd.DataFrame([np.array(hist)/count])
@@ -661,7 +663,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbp','wb') as fp:
+    with open('lbp2','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
@@ -694,7 +696,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbpAd','wb') as fp:
+    with open('lbpAd2','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
