@@ -403,7 +403,7 @@ def create_grid_3D(df, grid_size: tuple[int]):
     df['Y']=(df['Y']+abs(df['Y'].min()))//10
     df['Z']=(df['Z']+abs(df['Z'].min()))//10
     max_x, max_y, max_z = df['X'].max(),df['Y'].max(),df['Z'].max()
-    grid = np.full((14,max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
+    grid = np.full((14,int(np.ceil(max_x)+1),int(np.ceil( max_y)+1),int(np.ceil( max_z)+1)), np.nan)
     logging.debug('Initialising Empty Grid (Function)')
 
     for _ , row in df.iterrows():
