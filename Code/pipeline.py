@@ -569,7 +569,7 @@ def parallel_4D(s,grid_size):
     label=s[1]
     df=s[0]
     vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
-    df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+    #df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
     logging.debug('Initialising Gird for sample')
     grid=create_grid_3D(df,grid_size)
     logging.debug('Initialising Grid Complete')
@@ -663,7 +663,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbp2','wb') as fp:
+    with open('lbp2n','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
@@ -696,7 +696,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbpAd2','wb') as fp:
+    with open('lbpAd2n','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
