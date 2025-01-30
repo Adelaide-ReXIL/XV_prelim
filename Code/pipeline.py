@@ -6,7 +6,7 @@ from scipy import stats
 import math
 import logging
 from multiprocessing import Pool
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def global_clustering_model(controls: list) -> KMeans:
     """
@@ -21,6 +21,7 @@ def global_clustering_model(controls: list) -> KMeans:
     #for storing all specific ventilation values
     vent=[]
     for d in controls:
+        d.columns=['Specific Ventilation (mL/mL)','x (mm)','y (mm)','z (mm)']
         vent.extend(d['Specific Ventilation (mL/mL)'])
 
     vent=np.array(vent)
@@ -104,7 +105,7 @@ def extract_cluster_features(sample:pd.DataFrame,gModel:KMeans)->tuple[pd.DataFr
         The second DataFrame contains the extracted features.
     """
     # Add global clusters to the sample DataFrame
-    og_sample=pd.DataFrame(sample).copy(deep=True)
+    sample.columns=['Specific Ventilation (mL/mL)','x (mm)','y (mm)','z (mm)']
     sample = add_clusters(sample, gModel)
 
 
@@ -382,15 +383,36 @@ def compute_LBP_4D(grid):
 
 def create_grid(df, grid_size: tuple[int]):
     max_x, max_y, max_z = grid_size
-    grid = np.full((max_x//10+1, max_y//10+1, max_z//10+1), np.nan)
+    grid = np.full((max_x+1, max_y+1, max_z+1), np.nan)
 
     for _ , row in df.iterrows():
 
         value_column_name = 'SV'
         value = row[value_column_name]
-        x = int(row['X']/10)
-        y = int(row['Y']/10)
-        z = int(row['Z']/10)
+        x = int(row['X'])
+        y = int(row['Y'])
+        z = int(row['Z'])
+
+
+        if not np.isnan(value):
+            grid[x, y, z] = value
+            
+    return grid
+
+def create_grid_rank(df:pd.DataFrame):
+    df['X']=df['X'].rank(method='dense').astype('int')-1
+    df['Y']=df['Y'].rank(method='dense').astype('int')-1
+    df['Z']=df['Z'].rank(method='dense').astype('int')-1
+    max_x, max_y, max_z = df['X'].max(),df['Y'].max(),df['Z'].max()
+    grid = np.full((max_x+1, max_y+1, max_z+1), np.nan)
+
+    for _ , row in df.iterrows():
+
+        value_column_name = 'SV'
+        value = row[value_column_name]
+        x = int(row['X'])
+        y = int(row['Y'])
+        z = int(row['Z'])
 
 
         if not np.isnan(value):
@@ -413,6 +435,31 @@ def create_grid_3D(df, grid_size: tuple[int]):
         x = int(round(row['X']))
         y = int(round(row['Y']))
         z = int(round(row['Z']))
+        f=int(row['Frame'])
+
+        if not np.isnan(value):
+            if not np.isnan(grid[f,x,y,z]):
+                grid[f,x,y,z]=(value+grid[f,x,y,z])/2
+            else:
+                grid[f,x, y, z] = value
+                
+    return grid
+def create_grid_3D_rank(df):
+    df['X']=df['X'].rank(method='dense').astype('int')-1
+    df['Y']=df['Y'].rank(method='dense').astype('int')-1
+    df['Z']=df['Z'].rank(method='dense').astype('int')-1
+    max_x, max_y, max_z = df['X'].max(),df['Y'].max(),df['Z'].max()
+
+    grid = np.full((14,max_x+1, max_y+1, max_z+1), np.nan)
+    logging.debug('Initialising Empty Grid (Function)')
+
+    for _ , row in df.iterrows():
+        logging.debug('Initialising for a row (Function)')
+        value_column_name = 'SV'
+        value = row[value_column_name]
+        x = int(row['X'])
+        y = int(row['Y'])
+        z = int(row['Z'])
         f=int(row['Frame'])
 
         if not np.isnan(value):
@@ -500,8 +547,9 @@ class LBP_3D():
         for s in self.samples:
             label=s[1]
             df=s[0]
-            df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())
-            hist,count=compute_LBP_3D(create_grid_new(df))
+            vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
+            df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+            hist,count=compute_LBP_3D(create_grid_rank(df))
             feature=pd.DataFrame([np.array(hist)/count])
             feature['Label']=label
             self.features=pd.concat([self.features, pd.DataFrame(feature)], ignore_index=True)
@@ -569,9 +617,9 @@ def parallel_4D(s,grid_size):
     label=s[1]
     df=s[0]
     vol=abs((df['X'].max()-df['X'].min())*(df['Y'].max()-df['Y'].min())*(df['Z'].max()-df['Z'].min()))*10**-6
-    #df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
+    df['SV']=(df['SV']-df['SV'].min())/(df['SV'].max()-df['SV'].min())*vol
     logging.debug('Initialising Gird for sample')
-    grid=create_grid_3D(df,grid_size)
+    grid=create_grid_3D_rank(df)
     logging.debug('Initialising Grid Complete')
 
     logging.debug('Performing 4D LBP')
@@ -663,7 +711,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbp2n','wb') as fp:
+    with open('lbp2R','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
@@ -696,7 +744,7 @@ if __name__=='__main__':
 
     lbp=LBP_4D(dataframes)
     features=lbp.extract()
-    with open('lbpAd2n','wb') as fp:
+    with open('lbpAdR','wb') as fp:
 
         pickle.dump(features,fp)
         logging.debug('Done writing file')
