@@ -1,0 +1,10 @@
+numpy
+matplotlib
+PyPDF2
+pandas
+scikit-learn
+scipy
+libpysal
+xgboost
+networkx
+marimo

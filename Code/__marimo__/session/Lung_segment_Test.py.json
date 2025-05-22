@@ -1,0 +1,336 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.13.2"
+  },
+  "cells": [
+    {
+      "id": "setup",
+      "code_hash": "2f407afeeaef1683f17913cf2297ddd6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "cca2ddc90f2a141943507d32f6020ede",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "50cdbb32e3108ad318939c5a46044f73",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "6e7e92fa0049479250010815dccc3a5d",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "087b6f5b60780dfd105c0a5f8ba36e30",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "6e1bb5a61076024d3e1412d0aaf2bc82",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "850a7188705e499a9734cec306f3cc00",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "94406229312df06146db17751eb261d6",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "14dbb6d091a3d3663fb008da4de90023",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "00d6e4dfa5456622240072e3b30e048f",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "3a7b0405b09461880d7f426ad7f7a44e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "b278b99f53a516fca34b426c135611eb",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "d8f13f154ba9a4fc4d656be1d780a900",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "8ebe3ebc799820983a3f2e5b04bc233d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "ec60588e41d5c8561900cb805738e52e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "e145410edfaf8e4b6c83e21085574778",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "cefd41bbd34cda72591cd75aa9e934be",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "2d9126741097e2a687f8176397422e69",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "946bcc4c0b78461b8c9bc793b049eacc",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "0a9760f9146efb29ca143e165337c515",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "adebf275798e326b63ecdd74ede06392",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "application/json": "[\"WCH-CF-10006-20230519\", \"WCH-CF-10007-20230714\", \"WCH-CF-10020-20240624\", \"WCH-CF-10018-20240607\", \"WCH-CF-10012-20231124\", \"WCH-CF-10024-20240802\", \"WCH-CF-10010-20231006\", \"WCH-CF-10016-20240412\", \"WCH-CF-10013-20240112\", \"WCH-CF-10003-20230317\", \"WCH-CF-10011-20231013\", \"WCH-CF-10008-20230721\", \"WCH-CF-10022-20240712\", \"WCH-CF-10026-20241108\", \"WCH-CF-10017-20240517\", \"WCH-CF-10019-20240614\", \"WCH-CF-10021-20240708\", \"WCH-CF-10009-20230908\", \"WCH-CF-10015-20240322\", \"WCH-CF-10014-20240116\", \"WCH-CF-10004-20230331\", \"WCH-CF-10005-20230414\", \"WCH-CF-10023-20240726\"]"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "9f27cd4e8b6f6c7a2efdb065fb1d5b70",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "c36f8be03233c88e46aa609c20c3f137",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "c76da21522d0bcdde5eb7452a6c7fab2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "73c801dae5a21c147cd0f1ec1f37db39",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Best Params: {'leaf_size': 30, 'n_neighbors': 75}\nBest CV Score: 0.9069693688118813\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Test Accuracy: 0.9083567958912162\nAccuracy: 0.9083567958912162\n\nClassification Report:\n               precision    recall  f1-score   support\n\n           0       0.93      0.93      0.93      8013\n           1       0.92      0.92      0.92      7368\n           2       0.94      0.93      0.93      8076\n           3       0.79      0.77      0.78      2905\n           4       0.89      0.90      0.90      5959\n\n    accuracy                           0.91     32321\n   macro avg       0.89      0.89      0.89     32321\nweighted avg       0.91      0.91      0.91     32321\n\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "\nConfusion Matrix:\n [[7470  542    1    0    0]\n [ 590 6764    0    0   14]\n [   2    1 7495  307  271]\n [   0    1  272 2241  391]\n [   0   19  245  306 5389]]\n"
+        }
+      ]
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "3879d6348d1f1f9c65c06b812d2acb6f",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "ce59dcb3a8ef27f4b46327e0f40cee51",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "8d777f385d3dfec8815d20f7496026dc",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "cb592d9a49d9d80b7659d982c3fa26ef",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "pHFh",
+      "code_hash": "57a0388b76be2571692325a22cfa528e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "NCOB",
+      "code_hash": "e3ad6d1affabd70a7ae386cdbe155da5",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "aqbW",
+      "code_hash": "918be1b440c24ac372a9820ef47275cf",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "TRpd",
+      "code_hash": "ad0234829205b9033196ba818f7a872b",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "TXez",
+      "code_hash": "9f7051c9dd32545c635d3305d9e05559",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "dNNg",
+      "code_hash": "bf36e230834b2c34d7c37b6eb68a3879",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "yCnT",
+      "code_hash": "bb3f2225127d257c5c7e6dd2e50c3703",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bgBj",
+      "code_hash": "9098ece2e65e91139aef2c966a7c74e6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
