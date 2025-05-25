@@ -279,7 +279,7 @@ def make_voxel(data):
     data = np.array(data.values) # shape (N, 4): [metric, x, y, z]
 
 
-    D, H, W = 18, 18, 18
+    D, H, W = 32, 32, 32
 
     x_idx = np.clip((data[:,1] * (W - 1)).astype(int), 0, W - 1)
     y_idx = np.clip((data[:,2] * (H - 1)).astype(int), 0, H - 1)
@@ -578,11 +578,16 @@ def _(X_test, X_train, scaler, y_test, y_train):
 
 
 @app.function
-def get_diff(path,model):
-        test=pd.read_csv(path)
-        test=rotate_lung_data(test)
+def get_diff(path='',model=None,df=None):
+        test=None
+        if path=='':
+            test=df
+        else:
+            test=pd.read_csv(path)
+            test=rotate_lung_data(test)
         rank(test)
         norm(test)
+
         # test_1=pd.DataFrame(scaler.transform(test))
         test_2=test.copy()
         pred=model.predict(test.drop(columns=['SV']))
@@ -624,32 +629,179 @@ def _(mo):
 
 
 @app.cell
-def _(model_diff):
-    get_diff('../Datasets/Rat PA Study/csv/5766.WT.PA63.pp2.specificVentilation.csv',model_diff)
+def _(mo):
+    mo.md(r"""Example:  5766.WT.PA63""")
     return
 
 
 @app.cell
 def _(model_diff):
-    get_diff('../Datasets/Rat Sterile Bead Study/csv/post_beads/4570.KO.beads.specificVentilation.csv',model_diff)
+    r2=get_diff('../Datasets/Rat PA Study/csv/5766.WT.PA63.pp2.specificVentilation.csv',model_diff)
+    r2
+    return (r2,)
+
+
+@app.cell
+def _(model, r2):
+    lung_plot(df=r2[2],model=model,vmax=0.08,vmin=-0.08)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Example: 4570.KO.beads""")
     return
 
 
 @app.cell
 def _(model_diff):
-    get_diff('../Datasets/Rat Sterile Bead Study/csv/post_beads/4869.WT.BEADS.specificVentilation.csv',model_diff) 
+    r3=get_diff('../Datasets/Rat Sterile Bead Study/csv/post_beads/4570.KO.beads.specificVentilation.csv',model_diff)
+    r3
+    return (r3,)
+
+
+@app.cell
+def _(model, r3):
+    lung_plot(df=r3[2],model=model,vmax=0.08,vmin=-0.08)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Example: 4869.WT.BEADS""")
     return
 
 
 @app.cell
 def _(model_diff):
-    get_diff('../Datasets/Rat Sterile Bead Study/csv/baseline/3757.KO.specificVentilation.csv',model_diff) 
+    r4=get_diff('../Datasets/Rat Sterile Bead Study/csv/post_beads/4869.WT.BEADS.specificVentilation.csv',model_diff)
+    r4
+    return (r4,)
+
+
+@app.cell
+def _(model, r4):
+    lung_plot(df=r4[2],model=model,vmax=0.08,vmin=-0.08)
+    return
+
+
+@app.cell
+def _(r4):
+    tester=r4[2].copy()
+    tester['SV']=tester['segments']
+    plot_3d_points(tester,vmax=6,vmin=0)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Example: 3757.KO""")
     return
 
 
 @app.cell
 def _(model_diff):
-    get_diff("../Datasets/Rat Sterile Bead Study/csv/Control/4802.WT.ETI.control.specificVentilation.csv",model_diff)
+    r5=get_diff('../Datasets/Rat Sterile Bead Study/csv/baseline/3757.KO.specificVentilation.csv',model_diff)
+    r5
+    return (r5,)
+
+
+@app.cell
+def _(model, r5):
+    lung_plot(df=r5[2],model=model,vmax=0.08,vmin=-0.08)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""Example: 4802.WT.ETI.control""")
+    return
+
+
+@app.cell
+def _(model_diff):
+    r6=get_diff("../Datasets/Rat Sterile Bead Study/csv/Control/4802.WT.ETI.control.specificVentilation.csv",model_diff)
+    r6
+    return (r6,)
+
+
+@app.cell
+def _(model, r6):
+    lung_plot(df=r6[2],model=model,vmax=0.08,vmin=-0.08)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""## No. 17""")
+    return
+
+
+@app.cell
+def _(model):
+    c17=pd.read_csv('../Datasets/XV Clinical Data/WCH-CF-10017-20240517/WCH-CF-10017-INSP/WCH-CF-10017-INSP_final.csv')
+    c17.columns=['Frame','SV','x','y','z']
+    c17_res=[]
+    for i_17 in range(7):
+        temp_17=c17[c17['Frame']==i_17]
+        temp_17=temp_17.drop(columns=['Frame'])
+        c17_res.append(lung_plot(df=temp_17,model=model,vmin=temp_17['SV'].min(),vmax=temp_17['SV'].max()))
+
+    return (c17_res,)
+
+
+@app.cell
+def _(c17_res):
+    c17_res[0]
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""## No. 3""")
+    return
+
+
+@app.cell
+def _(model):
+    c3=pd.read_csv('../Datasets/XV Clinical Data/WCH-CF-10003-20230317/WCH-CF-10003-20230317-INSP/WCH-CF-10003-INSP_final.csv')
+    c3.columns=['Frame','SV','x','y','z']
+    c3_res=[]
+    for i_3 in range(7):
+        temp_3=c3[c3['Frame']==i_3]
+        temp_3=temp_3.drop(columns=['Frame'])
+        c3_res.append(lung_plot(df=temp_3,model=model,vmin=temp_3['SV'].min(),vmax=temp_3['SV'].max()))
+    return (c3_res,)
+
+
+@app.cell
+def _(c3_res):
+    c3_res[6]
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""## No. 6""")
+    return
+
+
+@app.cell
+def _(model):
+    c6=pd.read_csv('../Datasets/XV Clinical Data/WCH-CF-10006-20230519/WCH-CF-10006-SUPINE-INSP/WCH-CF-10006-INSP_final.csv')
+    c6.columns=['Frame','SV','x','y','z']
+    c6_res=[]
+    for i_6 in range(7):
+        temp_6=c6[c6['Frame']==i_6]
+        temp_6=temp_6.drop(columns=['Frame'])
+        c6_res.append(lung_plot(df=temp_6,model=model,vmin=temp_6['SV'].min(),vmax=temp_6['SV'].max()))
+
+    return (c6_res,)
+
+
+@app.cell
+def _(c6_res):
+    c6_res[0]
     return
 
 

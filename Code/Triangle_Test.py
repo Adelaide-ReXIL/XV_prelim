@@ -52,7 +52,8 @@ def norm(data):
 @app.function
 def plot_graph(data, G, edge=True):
     fixed_pos = {n: (G.nodes[n]['x_i'], G.nodes[n]['z']) for n in G.nodes}
-    pos = nx.spring_layout(G,pos=fixed_pos,iterations=200,k=0.1)
+    to_fix = {x: fixed_pos[x] for x in fixed_pos if np.random.rand() < 0.10}
+    pos = nx.spring_layout(G,pos=fixed_pos,iterations=200,fixed=to_fix,k=1.1/np.sqrt(len(fixed_pos)))
 
     fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -80,7 +81,8 @@ def plot_graph(data, G, edge=True):
 @app.function
 def make_graphs(G):
     fixed_pos = {n: (G.nodes[n]['x_i'], G.nodes[n]['z']) for n in G.nodes}
-    pos = nx.spring_layout(G,pos=fixed_pos,iterations=200,k=0.1)
+    to_fix = {x: fixed_pos[x] for x in fixed_pos if np.random.rand() < 0.25}
+    pos = nx.spring_layout(G,pos=fixed_pos,iterations=250,fixed=to_fix,k=1.5/np.sqrt(len(fixed_pos)))
 
 
     nodes = list(G.nodes)

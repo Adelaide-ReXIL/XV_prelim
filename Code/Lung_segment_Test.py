@@ -228,6 +228,11 @@ def _(csv_files):
 
 
 @app.cell
+def _():
+    return
+
+
+@app.cell
 def _(all_ins_outs):
     combined=pd.DataFrame()
     for d in all_ins_outs:

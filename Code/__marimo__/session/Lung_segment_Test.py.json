@@ -98,7 +98,7 @@
     },
     {
       "id": "Hstk",
-      "code_hash": "d8f13f154ba9a4fc4d656be1d780a900",
+      "code_hash": "09c8739c43136ffd5a59a2b36efb1039",
       "outputs": [],
       "console": []
     },
@@ -200,7 +200,7 @@
     },
     {
       "id": "ecfG",
-      "code_hash": "c36f8be03233c88e46aa609c20c3f137",
+      "code_hash": "9befc9a9dc62a33e5838726b83b51784",
       "outputs": [
         {
           "type": "data",
@@ -227,31 +227,8 @@
     {
       "id": "ZBYS",
       "code_hash": "73c801dae5a21c147cd0f1ec1f37db39",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stdout",
-          "text": "Best Params: {'leaf_size': 30, 'n_neighbors': 75}\nBest CV Score: 0.9069693688118813\n"
-        },
-        {
-          "type": "stream",
-          "name": "stdout",
-          "text": "Test Accuracy: 0.9083567958912162\nAccuracy: 0.9083567958912162\n\nClassification Report:\n               precision    recall  f1-score   support\n\n           0       0.93      0.93      0.93      8013\n           1       0.92      0.92      0.92      7368\n           2       0.94      0.93      0.93      8076\n           3       0.79      0.77      0.78      2905\n           4       0.89      0.90      0.90      5959\n\n    accuracy                           0.91     32321\n   macro avg       0.89      0.89      0.89     32321\nweighted avg       0.91      0.91      0.91     32321\n\n"
-        },
-        {
-          "type": "stream",
-          "name": "stdout",
-          "text": "\nConfusion Matrix:\n [[7470  542    1    0    0]\n [ 590 6764    0    0   14]\n [   2    1 7495  307  271]\n [   0    1  272 2241  391]\n [   0   19  245  306 5389]]\n"
-        }
-      ]
+      "outputs": [],
+      "console": []
     },
     {
       "id": "aLJB",
@@ -320,13 +297,13 @@
       "console": []
     },
     {
-      "id": "bgBj",
-      "code_hash": "9098ece2e65e91139aef2c966a7c74e6",
+      "id": "CRyI",
+      "code_hash": "507d922378ecab8e10b81dcbc2ff8bf3",
       "outputs": [
         {
           "type": "data",
           "data": {
-            "text/plain": ""
+            "text/html": "<marimo-ui-element object-id='CRyI-0' random-id='87d19ecb-faa7-ef0e-2211-22d360b3e0d0'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;./@file/816-7219805-InpinaJw.json&quot;' data-total-rows='161601' data-total-columns='5' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;SV&quot;, [&quot;number&quot;, &quot;float64&quot;]], [&quot;x&quot;, [&quot;number&quot;, &quot;float64&quot;]], [&quot;y&quot;, [&quot;number&quot;, &quot;float64&quot;]], [&quot;z&quot;, [&quot;number&quot;, &quot;float64&quot;]], [&quot;lobe&quot;, [&quot;integer&quot;, &quot;int64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-row-headers='[&quot;&quot;]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
           }
         }
       ],

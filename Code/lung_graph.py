@@ -185,7 +185,7 @@ def lung_plot(path='',df=None,model=None,vmin=-0.22,vmax=0.89):
         plot_3d_points(segment, ax1,vmin,vmax)
         l['s']=(l['s'] - l['s'].min()) / (l['s'].max() - l['s'].min())
         scale= (1 - l['s']) * 30 + 10
-        sc = ax2.scatter(l['y'], l['x'], s=scale, c=l['SV'], cmap='RdYlGn',vmax=vmax,vmin=vmin)
+        sc = ax2.scatter(l['y'], l['x'], s=scale, c=l['SV'], alpha=(l['s'] + 0.4).clip(upper=1), cmap='RdYlGn',vmax=vmax,vmin=vmin)
         cbar = plt.colorbar(sc, ax=ax2)
         cbar.set_label('SV (0 to 0.5)')
         plt.tight_layout()
