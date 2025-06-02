@@ -1,0 +1,99 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.13.11"
+  },
+  "cells": [
+    {
+      "id": "setup",
+      "code_hash": "b088b8de6420c8d20a14f0c5d802c6b0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "6bb61bd39fc6f62f454077a8177f8d06",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "e4075d5ecb0ddba55e36f6ef9a1aebcc",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "bfddacc2da0c780354f974ed5d5ba07e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "application/json": "[\"../Datasets/Output/Specific Ventilation/KG_45_B\", \"../Datasets/Output/Specific Ventilation/KG_57_A\", \"../Datasets/Output/Specific Ventilation/KG_11_B\", \"../Datasets/Output/Specific Ventilation/KG_01_B\", \"../Datasets/Output/Specific Ventilation/KG_58_A\", \"../Datasets/Output/Specific Ventilation/KG_62_A\", \"../Datasets/Output/Specific Ventilation/KG_67_A\", \"../Datasets/Output/Specific Ventilation/KG_73_A\", \"../Datasets/Output/Specific Ventilation/KG_75_B\", \"../Datasets/Output/Specific Ventilation/KG_72_B\", \"../Datasets/Output/Specific Ventilation/KG_06_B\", \"../Datasets/Output/Specific Ventilation/KG_38_B\", \"../Datasets/Output/Specific Ventilation/KG_24_A\", \"../Datasets/Output/Specific Ventilation/KG_32_A\", \"../Datasets/Output/Specific Ventilation/KG_78_A\", \"../Datasets/Output/Specific Ventilation/KG_07_A\", \"../Datasets/Output/Specific Ventilation/KG_67_B\", \"../Datasets/Output/Specific Ventilation/KG_61_B\", \"../Datasets/Output/Specific Ventilation/KG_07_B\", \"../Datasets/Output/Specific Ventilation/KG_64_A\", \"../Datasets/Output/Specific Ventilation/KG_08_A\", \"../Datasets/Output/Specific Ventilation/KG_76_B\", \"../Datasets/Output/Specific Ventilation/KG_74_A\", \"../Datasets/Output/Specific Ventilation/KG_14_B\", \"../Datasets/Output/Specific Ventilation/KG_18_B\", \"../Datasets/Output/Specific Ventilation/KG_75_A\", \"../Datasets/Output/Specific Ventilation/KG_70_A\", \"../Datasets/Output/Specific Ventilation/KG_08_B\", \"../Datasets/Output/Specific Ventilation/KG_38_A\", \"../Datasets/Output/Specific Ventilation/KG_73_B\", \"../Datasets/Output/Specific Ventilation/KG_47_B\", \"../Datasets/Output/Specific Ventilation/KG_55_A\", \"../Datasets/Output/Specific Ventilation/KG_55_B\", \"../Datasets/Output/Specific Ventilation/KG_35_A\", \"../Datasets/Output/Specific Ventilation/KG_13_B\", \"../Datasets/Output/Specific Ventilation/KG_01_A\", \"../Datasets/Output/Specific Ventilation/KG_60_B\", \"../Datasets/Output/Specific Ventilation/KG_47_A\", \"../Datasets/Output/Specific Ventilation/KG_18_A\", \"../Datasets/Output/Specific Ventilation/KG_29_A\", \"../Datasets/Output/Specific Ventilation/KG_02_B\", \"../Datasets/Output/Specific Ventilation/KG_35_B\", \"../Datasets/Output/Specific Ventilation/KG_56_B\", \"../Datasets/Output/Specific Ventilation/KG_72_A\", \"../Datasets/Output/Specific Ventilation/KG_52_A\", \"../Datasets/Output/Specific Ventilation/KG_70_B\", \"../Datasets/Output/Specific Ventilation/KG_52_B\", \"../Datasets/Output/Specific Ventilation/KG_63_B\", \"../Datasets/Output/Specific Ventilation/KG_25_A\", \"../Datasets/Output/Specific Ventilation/KG_25_B\", \"../Datasets/Output/Specific Ventilation/KG_77_A\", \"../Datasets/Output/Specific Ventilation/KG_62_B\", \"../Datasets/Output/Specific Ventilation/KG_09_B\", \"../Datasets/Output/Specific Ventilation/KG_22_A\", \"../Datasets/Output/Specific Ventilation/KG_61_A\", \"../Datasets/Output/Specific Ventilation/KG_15_B\", \"../Datasets/Output/Specific Ventilation/KG_24_B\", \"../Datasets/Output/Specific Ventilation/KG_76_A\", \"../Datasets/Output/Specific Ventilation/KG_74_B\", \"../Datasets/Output/Specific Ventilation/KG_56_A\", \"../Datasets/Output/Specific Ventilation/KG_13_A\", \"../Datasets/Output/Specific Ventilation/KG_02_A\", \"../Datasets/Output/Specific Ventilation/KG_78_B\", \"../Datasets/Output/Specific Ventilation/KG_16_A\", \"../Datasets/Output/Specific Ventilation/KG_29_B\", \"../Datasets/Output/Specific Ventilation/KG_11_A\", \"../Datasets/Output/Specific Ventilation/KG_40_B\", \"../Datasets/Output/Specific Ventilation/KG_09_A\", \"../Datasets/Output/Specific Ventilation/KG_45_A\", \"../Datasets/Output/Specific Ventilation/KG_57_B\", \"../Datasets/Output/Specific Ventilation/KG_69_A\", \"../Datasets/Output/Specific Ventilation/KG_36_A\", \"../Datasets/Output/Specific Ventilation/KG_27_B\", \"../Datasets/Output/Specific Ventilation/KG_36_B\", \"../Datasets/Output/Specific Ventilation/KG_32_B\", \"../Datasets/Output/Specific Ventilation/KG_27_A\", \"../Datasets/Output/Specific Ventilation/KG_77_B\", \"../Datasets/Output/Specific Ventilation/KG_30_A\", \"../Datasets/Output/Specific Ventilation/KG_58_B\", \"../Datasets/Output/Specific Ventilation/KG_30_B\", \"../Datasets/Output/Specific Ventilation/KG_06_A\", \"../Datasets/Output/Specific Ventilation/KG_60_A\", \"../Datasets/Output/Specific Ventilation/KG_64_B\", \"../Datasets/Output/Specific Ventilation/KG_40_A\", \"../Datasets/Output/Specific Ventilation/KG_16_B\", \"../Datasets/Output/Specific Ventilation/KG_63_A\", \"../Datasets/Output/Specific Ventilation/KG_22_B\", \"../Datasets/Output/Specific Ventilation/KG_69_B\", \"../Datasets/Output/Specific Ventilation/KG_14_A\", \"../Datasets/Output/Specific Ventilation/KG_15_A\"]"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "a316329b85d87c91a778a779e4e0020e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "8e4035a96eed1712577a9ebc48ad7c7a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

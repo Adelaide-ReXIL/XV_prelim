@@ -1,0 +1,234 @@
+import marimo
+
+__generated_with = "0.13.11"
+app = marimo.App(width="full")
+
+with app.setup:
+    import torch
+    from pointnet import PointNetPP,PointNetSetAbstraction
+    import torch.nn as nn
+    from torch.utils.data import Dataset,DataLoader
+    import torch.nn.functional as F
+    import torch.optim as optim
+    from data_loader import XVData,csv_loader,PA_dataset_loader,bead_study_loader
+    from Triangle_Test import plot_3d_points
+    import pandas as pd
+    import random
+    import numpy as np
+    from sklearn.metrics import f1_score, confusion_matrix, classification_report
+
+
+@app.cell
+def _():
+    import marimo as mo
+    return
+
+
+@app.cell
+def _():
+
+    model:PointNetPP = torch.load("pointnetpp2_full.pth",weights_only=False)
+
+    model.classifier = nn.Sequential(
+                nn.Linear(1024, 512),
+                nn.BatchNorm1d(512),
+                nn.ReLU(),
+                nn.Dropout(0.4),
+                nn.Linear(512, 256),
+                nn.BatchNorm1d(256),
+                nn.ReLU(),
+                nn.Dropout(0.4),
+                nn.Linear(256, 2)
+            )
+    model
+
+
+
+
+    return (model,)
+
+
+@app.cell
+def _():
+
+    data_files = []
+    data_files.extend(csv_loader())
+    data_files.extend(bead_study_loader())
+    data_files.extend(PA_dataset_loader())
+
+    wt = [d for d in data_files if 'wt' in d.lower()]
+    cf = [d for d in data_files if 'wt'  not in d.lower()]
+
+    # Shuffle for randomness
+    random.shuffle(wt)
+    random.shuffle(cf)
+
+    # Split each class into train and test (e.g., 80-20 split)
+    wt_split = int(0.8 * len(wt))
+    cf_split = int(0.8 * len(cf))
+
+    wt_train, wt_test = wt[:wt_split], wt[wt_split:]
+    cf_train, cf_test = cf[:cf_split], cf[cf_split:]
+
+    train_files = wt_train + cf_train
+    test_files = wt_test + cf_test
+
+    random.shuffle(train_files)
+    random.shuffle(test_files)
+
+    print(len(wt),len(cf))
+
+    return cf, data_files, test_files, train_files, wt
+
+
+@app.cell
+def _(data_files):
+    def average_num_points(csv_files):
+        total_points = 0
+        for file in csv_files:
+            df = pd.read_csv(file)
+            total_points += len(df)
+        return total_points / len(csv_files)
+    average_num_points(data_files)
+    return
+
+
+@app.cell
+def _(data_files):
+    # Raw
+    raw_df = pd.read_csv(data_files[2])
+    raw_df.columns = ['SV', 'x', 'y', 'z']
+    plot_3d_points(raw_df)
+
+
+
+    return
+
+
+@app.cell
+def _(data_files):
+    # Sampled
+    datas = XVData(data_files[1:3], n=4096, transform=True)
+    sample = datas[1][0]
+    sample_df = pd.DataFrame(sample.numpy(), columns=["SV", "x", "y", "z"])
+    plot_3d_points(sample_df)
+    return
+
+
+@app.cell
+def _(cf, model, train_files, wt):
+    device = torch.device('cuda:0')
+    model.to(device)
+
+
+    dataset = XVData(train_files,n=5000)
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=28 ,pin_memory=True)
+
+    weights = torch.tensor([1.0, len(cf)/len(wt)], device=device)
+    criterion = nn.CrossEntropyLoss(weight=weights)
+    # criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=5e-6)
+
+    num_epochs = 75
+
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+        for points, labels in dataloader:
+            points = points.to(device, non_blocking=True).float()  # shape: (B, N, 4)
+            labels = labels.to(device, non_blocking=True).long() # convert one-hot to class index
+
+            optimizer.zero_grad()
+            outputs = model(points)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+        print(f"Epoch {epoch+1} Loss: {running_loss / len(dataloader):.4f}")
+
+    return (device,)
+
+
+@app.cell
+def _(device, model, test_files):
+    def _():
+        import time
+
+        test = XVData(test_files)
+        testloader = DataLoader(test, batch_size=16, shuffle=False, num_workers=16, pin_memory=True)
+
+        model.eval()
+        correct = total = 0
+
+        with torch.no_grad():
+            for points, labels in testloader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                preds = outputs.argmax(dim=1)
+                correct += (preds == labels).sum().item()
+                total += labels.size(0)
+        print(f"Test Accuracy: {100 * correct / total:.2f}%")
+
+        model.eval()
+
+        points, label = test[0]
+        points = points.unsqueeze(0).to(device).float()
+        label = label.argmax().item()
+
+        start = time.time()
+        with torch.no_grad():
+            output = model(points)
+        end = time.time()
+
+        pred = output.argmax(dim=1).item()
+        print(f"True label: {label}, Predicted: {pred}, Time: {(end - start) * 1000:.2f} ms")
+
+        from sklearn.metrics import f1_score, confusion_matrix, classification_report
+
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for points, labels in testloader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                preds = outputs.argmax(dim=1)
+
+                all_preds.append(preds.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
+        # Concatenate all batches
+        all_preds = np.concatenate(all_preds)
+        all_labels = np.concatenate(all_labels)
+
+        acc = (all_preds == all_labels).mean() * 100
+        print(f"Accuracy: {acc:.2f}%")
+
+        # F1 Score
+        print(f"F1 Score (macro): {f1_score(all_labels, all_preds, average='macro'):.4f}")
+        print(f"F1 Score (weighted): {f1_score(all_labels, all_preds, average='weighted'):.4f}")
+
+        # Confusion Matrix
+        print("Confusion Matrix:")
+        print(confusion_matrix(all_labels, all_preds))
+
+        # Optional: Full report
+        print("Classification Report:")
+        print(classification_report(all_labels, all_preds))
+
+
+    _()
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+if __name__ == "__main__":
+    app.run()
