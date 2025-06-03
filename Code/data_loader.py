@@ -1,6 +1,8 @@
+
+
 import marimo
 
-__generated_with = "0.13.11"
+__generated_with = "0.13.2"
 app = marimo.App(width="full")
 
 with app.setup:
@@ -9,6 +11,7 @@ with app.setup:
     from torch.utils.data import Dataset
     import pandas as pd
     import numpy as np
+    from augumented_lung import aug_lung
     import torch
     import os
 
@@ -19,12 +22,24 @@ def _():
     return
 
 
+@app.function
+def find_max_min(files):
+    data=np.array([])
+    for f in files:
+        temp=pd.read_csv(f)
+        temp.columns=['SV','x','y','z']
+        data=np.concatenate((data,temp['SV'].values))
+
+    return data.min(),data.max()
+
+
 @app.class_definition
 class XVData(Dataset):
     def __init__(self, csv_files, transform=False,n=6000):
         self.csv_files = csv_files
         self.transform = transform
         self.n=n
+        self.sv_norm=find_max_min(csv_files)
 
     def __len__(self):
         return len(self.csv_files)
@@ -39,8 +54,11 @@ class XVData(Dataset):
         if self.transform:
             data = rotate_lung_data(data)
 
+        data=aug_lung(data,int((self.n+5000)/len(data)))
+
         pts = data[['x', 'y', 'z']].values
         s = data[['SV']].values
+        s=(s-self.sv_norm[0])/(self.sv_norm[1]-self.sv_norm[0]+1e-8)
 
         mins = pts.min(0, keepdims=True)
         maxs = pts.max(0, keepdims=True)
@@ -66,19 +84,28 @@ def PA_dataset_loader(dir='../Datasets/Rat PA Study/'):
     return files
 
 
-@app.cell
-def _():
-    def sheep_dataset_loader(dir='../Datasets/Output'):
-        mapping = pd.read_csv(dir+'/sheep_ids_types.csv')
-        dir = os.path.join(dir, 'Specific Ventilation')
-        dirs = [os.path.join(dir, d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
+@app.function
+def sheep_dataset_loader(dir='../Datasets/Output'):
+    mapping = pd.read_csv(dir+'/sheep_ids_types.csv')
+    id_mapping=dict(zip(mapping['ID'],mapping['Challenge']))
+    preg_mapping=dict(zip(mapping['ID'],mapping['U/S pregnancy']))
+    dir = os.path.join(dir, 'Specific Ventilation')
+    dirs = [os.path.join(dir, d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
 
-        return dirs
+    files=[]
+
+    for d in dirs:
+        name=d.split('/')[-1]
+        if "B" in name:
+            continue
+        if id_mapping.get(name[:-2]," ") not in ["Control"," "]:
+            continue
+        if preg_mapping.get(name[:-2]," ") not in ["Non-pregnant"," "]:
+            continue
+        files.append(f"{d}/output/{name}.specificVentilation.insp.pp.07.csv")
 
 
-
-    sheep_dataset_loader()
-    return
+    return files
 
 
 @app.function
@@ -94,6 +121,12 @@ def bead_study_loader(dir='../Datasets/Rat Sterile Bead Study'):
     files.extend(csv_loader(dir+"/baseline"))
     files.extend(csv_loader(dir+"/Control"))
     return files
+
+
+@app.cell
+def _():
+    find_max_min(sheep_dataset_loader())
+    return
 
 
 if __name__ == "__main__":

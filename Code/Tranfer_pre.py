@@ -1,6 +1,8 @@
+
+
 import marimo
 
-__generated_with = "0.13.11"
+__generated_with = "0.13.2"
 app = marimo.App(width="full")
 
 with app.setup:
@@ -10,7 +12,7 @@ with app.setup:
     from torch.utils.data import Dataset,DataLoader
     import torch.nn.functional as F
     import torch.optim as optim
-    from data_loader import XVData,csv_loader,PA_dataset_loader,bead_study_loader
+    from data_loader import XVData,csv_loader,PA_dataset_loader,bead_study_loader,sheep_dataset_loader
     from Triangle_Test import plot_3d_points
     import pandas as pd
     import random
@@ -20,14 +22,23 @@ with app.setup:
 
 @app.cell
 def _():
-    import marimo as mo
+    import marimo as mo      
     return
 
 
 @app.cell
 def _():
 
-    model:PointNetPP = torch.load("pointnetpp2_full.pth",weights_only=False)
+    model=None
+    if torch.cuda.is_available():
+        model:PointNetPP = torch.load("pointnetpp2_full.pth",weights_only=False)
+    elif torch.mps.is_available():
+        model: PointNetPP = torch.load("pointnetpp2_full.pth", map_location=torch.device('mps'), weights_only=False)
+    else:
+        model: PointNetPP = torch.load("pointnetpp2_full.pth", map_location=torch.device('cpu'), weights_only=False)
+
+
+
 
     model.classifier = nn.Sequential(
                 nn.Linear(1024, 512),
@@ -52,9 +63,10 @@ def _():
 def _():
 
     data_files = []
-    data_files.extend(csv_loader())
-    data_files.extend(bead_study_loader())
+    # data_files.extend(csv_loader())
+    # data_files.extend(bead_study_loader())
     data_files.extend(PA_dataset_loader())
+    data_files.extend(sheep_dataset_loader())
 
     wt = [d for d in data_files if 'wt' in d.lower()]
     cf = [d for d in data_files if 'wt'  not in d.lower()]
@@ -96,8 +108,9 @@ def _(data_files):
 @app.cell
 def _(data_files):
     # Raw
-    raw_df = pd.read_csv(data_files[2])
+    raw_df = pd.read_csv(data_files[0])
     raw_df.columns = ['SV', 'x', 'y', 'z']
+    print(len(raw_df))
     plot_3d_points(raw_df)
 
 
@@ -108,21 +121,22 @@ def _(data_files):
 @app.cell
 def _(data_files):
     # Sampled
-    datas = XVData(data_files[1:3], n=4096, transform=True)
-    sample = datas[1][0]
+    datas = XVData(data_files[:2], n=10000, transform=True)
+    sample = datas[0][0]
     sample_df = pd.DataFrame(sample.numpy(), columns=["SV", "x", "y", "z"])
+    print(len(sample_df))
     plot_3d_points(sample_df)
     return
 
 
 @app.cell
 def _(cf, model, train_files, wt):
-    device = torch.device('cuda:0')
+    device = torch.device('mps')
     model.to(device)
 
 
     dataset = XVData(train_files,n=5000)
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=28 ,pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=8 ,pin_memory=True)
 
     weights = torch.tensor([1.0, len(cf)/len(wt)], device=device)
     criterion = nn.CrossEntropyLoss(weight=weights)
