@@ -62,7 +62,7 @@ class PointCloud(Dataset):
         mesh = trimesh.load(path)
         pts = mesh.sample(self.n)  # (n, 3)
 
-        s = np.random.uniform(0.3, 0.6, size=(self.n, 1))
+        s = np.random.uniform(0.2, 0.8, size=(self.n, 1))
 
 
         # normalize x, y, z to 0..1
@@ -142,7 +142,7 @@ def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
     xyz_centers = centers4d[..., 1:]          # (B, S, 3)
 
     # 2) Compute per-center s‐radius: r_s_dyn[b,k] = 1.5 * s_centers[b,k]
-    r_s_dyn = torch.clamp(1.25 * s_centers, min=0.01, max=0.2)           # (B, S)
+    r_s_dyn = torch.clamp(1.25 * s_centers, min=0.0001, max=0.5)           # (B, S)
 
     # 3) Compute |s_j – s_center_k| for all j,k:
     #    shape (B, S, N): 
@@ -413,8 +413,8 @@ class PointNetPP(nn.Module):
             npoint=None,
             mlp=[256, 256, 512, 1024],
             s_scale_factor=1,  # not used because npoint=None
-            r_xyz=0.5,
-            max_samples=32,
+            r_xyz=0.3,
+            max_samples=16,
             use_geometry_centers=False
         )
 
@@ -520,7 +520,7 @@ def _():
 
 @app.cell
 def _(model):
-    torch.save(model, 'pointnetpp_4d_full6.pth')
+    torch.save(model, 'pointnetpp_4d_full8.pth')
     return
 
 
@@ -530,13 +530,13 @@ def _():
 
 
 @app.cell
-def _():
+def _(model):
     def _():
         from sklearn.metrics import f1_score, confusion_matrix, classification_report
         import time
 
         device = torch.device('cuda:0')
-        model = torch.load('pointnetpp_4d_full2.pth', weights_only=False)
+        # model = torch.load('pointnetpp_4d_full6.pth', weights_only=False)
         model.to(device)
 
         test = PointCloud('../Datasets/archive/ModelNet10', train=False)

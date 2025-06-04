@@ -32,11 +32,11 @@ def _():
 
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load("pointnetpp_4d_full4.pth",weights_only=False)
+        model:PointNetPP = torch.load("pointnetpp_4d_full7.pth",weights_only=False)
     elif torch.mps.is_available():
-        model: PointNetPP = torch.load("pointnetpp_4d_full4.pth", map_location=torch.device('mps'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full7.pth", map_location=torch.device('mps'), weights_only=False)
     else:
-        model: PointNetPP = torch.load("pointnetpp_4d_full4.pth", map_location=torch.device('cpu'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full7.pth", map_location=torch.device('cpu'), weights_only=False)
 
 
 
@@ -150,7 +150,7 @@ def _(cf, model, train_files, wt):
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
     train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val, batch_size=2, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val, batch_size=8, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
 
     num_epochs = 100
     patience = 10
@@ -195,7 +195,7 @@ def _(device, model, test_files):
     def _():
         import time
 
-        test = XVData(test_files)
+        test = XVData(test_files,n=7500)
         testloader = DataLoader(test, batch_size=2, shuffle=False, num_workers=16, pin_memory=True)
 
         model.eval()
@@ -266,7 +266,7 @@ def _(device, model, test_files):
 
 @app.cell
 def _(model):
-    torch.save(model, 'pretrained_4.pth')
+    torch.save(model, 'pretrained_6.pth')
     return
 
 
