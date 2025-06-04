@@ -1,13 +1,11 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.11"
 app = marimo.App(width="full")
 
 with app.setup:
     import torch
-    from pointnet import PointNetPP,PointNetSetAbstraction
+    from pointnetalt import PointNetPP,PointNetSetAbstraction
     import torch.nn as nn
     from torch.utils.data import Dataset,DataLoader
     import torch.nn.functional as F
@@ -23,6 +21,9 @@ with app.setup:
 @app.cell
 def _():
     import marimo as mo      
+
+    torch.cuda.empty_cache()
+    torch.cuda.ipc_collect()
     return
 
 
@@ -31,11 +32,11 @@ def _():
 
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load("pointnetpp2_full.pth",weights_only=False)
+        model:PointNetPP = torch.load("pointnetpp_4d_full4.pth",weights_only=False)
     elif torch.mps.is_available():
-        model: PointNetPP = torch.load("pointnetpp2_full.pth", map_location=torch.device('mps'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full4.pth", map_location=torch.device('mps'), weights_only=False)
     else:
-        model: PointNetPP = torch.load("pointnetpp2_full.pth", map_location=torch.device('cpu'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full4.pth", map_location=torch.device('cpu'), weights_only=False)
 
 
 
@@ -51,7 +52,6 @@ def _():
                 nn.Dropout(0.4),
                 nn.Linear(256, 2)
             )
-    model
 
 
 
@@ -63,18 +63,17 @@ def _():
 def _():
 
     data_files = []
-    # data_files.extend(csv_loader())
-    # data_files.extend(bead_study_loader())
-    data_files.extend(PA_dataset_loader())
-    data_files.extend(sheep_dataset_loader())
+    data_files.extend(csv_loader())
+    data_files.extend(bead_study_loader())
+    # data_files.extend(PA_dataset_loader())
 
     wt = [d for d in data_files if 'wt' in d.lower()]
     cf = [d for d in data_files if 'wt'  not in d.lower()]
+    wt.extend(sheep_dataset_loader())
 
     # Shuffle for randomness
     random.shuffle(wt)
     random.shuffle(cf)
-
     # Split each class into train and test (e.g., 80-20 split)
     wt_split = int(0.8 * len(wt))
     cf_split = int(0.8 * len(cf))
@@ -130,37 +129,63 @@ def _(data_files):
 
 
 @app.cell
+def _():
+    return
+
+
+@app.cell
 def _(cf, model, train_files, wt):
-    device = torch.device('mps')
+    device = torch.device('cuda:0')
     model.to(device)
 
 
-    dataset = XVData(train_files,n=5000)
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=8 ,pin_memory=True)
+    dataset = XVData(train_files[:-16],n=7500)
+    val = XVData(train_files[-16:],n=7500)
+
 
     weights = torch.tensor([1.0, len(cf)/len(wt)], device=device)
-    criterion = nn.CrossEntropyLoss(weight=weights)
-    # criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=5e-6)
+    # criterion = nn.CrossEntropyLoss(weight=weights)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
-    num_epochs = 75
+    train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val, batch_size=2, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
+
+    num_epochs = 100
+    patience = 10
+    best_val_loss = float('inf')
+    counter = 0
 
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
-        for points, labels in dataloader:
-            points = points.to(device, non_blocking=True).float()  # shape: (B, N, 4)
-            labels = labels.to(device, non_blocking=True).long() # convert one-hot to class index
+        for points, labels in train_loader:
+            points = points.to(device, non_blocking=True).float()
+            labels = labels.to(device, non_blocking=True).long()
 
             optimizer.zero_grad()
             outputs = model(points)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
-
             running_loss += loss.item()
 
-        print(f"Epoch {epoch+1} Loss: {running_loss / len(dataloader):.4f}")
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for points, labels in val_loader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                val_loss += criterion(outputs, labels).item()
+        val_loss /= max(len(val_loader),1)
+        scheduler.step(val_loss)
+
+
+        print(f"Epoch {epoch+1} Train Loss: {running_loss / len(train_loader):.4f}  Val Loss: {val_loss:.4f}")
+
+
 
     return (device,)
 
@@ -171,7 +196,7 @@ def _(device, model, test_files):
         import time
 
         test = XVData(test_files)
-        testloader = DataLoader(test, batch_size=16, shuffle=False, num_workers=16, pin_memory=True)
+        testloader = DataLoader(test, batch_size=2, shuffle=False, num_workers=16, pin_memory=True)
 
         model.eval()
         correct = total = 0
@@ -240,7 +265,8 @@ def _(device, model, test_files):
 
 
 @app.cell
-def _():
+def _(model):
+    torch.save(model, 'pretrained_4.pth')
     return
 
 

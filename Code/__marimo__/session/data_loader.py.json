@@ -1,7 +1,7 @@
 {
   "version": "1",
   "metadata": {
-    "marimo_version": "0.13.2"
+    "marimo_version": "0.13.11"
   },
   "cells": [
     {
@@ -25,26 +25,19 @@
     },
     {
       "id": "MJUe",
-      "code_hash": "34a2b24a87c1f772475825b4bc753075",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
+      "code_hash": "c9db54fbdf8a6a36ca9d1824b9a98ad7",
+      "outputs": [],
       "console": []
     },
     {
       "id": "vblA",
-      "code_hash": "e4075d5ecb0ddba55e36f6ef9a1aebcc",
+      "code_hash": "34a2b24a87c1f772475825b4bc753075",
       "outputs": [],
       "console": []
     },
     {
       "id": "bkHC",
-      "code_hash": "e3a3a1d50a5942cbe8badf009694fb83",
+      "code_hash": "69f119d01a6bde176581bbe053dc6935",
       "outputs": [
         {
           "type": "data",
@@ -57,40 +50,26 @@
     },
     {
       "id": "lEQa",
-      "code_hash": "a316329b85d87c91a778a779e4e0020e",
+      "code_hash": "e3a3a1d50a5942cbe8badf009694fb83",
       "outputs": [],
       "console": []
     },
     {
       "id": "PKri",
+      "code_hash": "a316329b85d87c91a778a779e4e0020e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Xref",
       "code_hash": "8e4035a96eed1712577a9ebc48ad7c7a",
       "outputs": [],
       "console": []
     },
     {
-      "id": "cOzx",
-      "code_hash": "2ac0ea4c97d4eeff451cd2e8000aec93",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
-      "console": []
-    },
-    {
-      "id": "UiTE",
+      "id": "SFPL",
       "code_hash": "a2c430f9f2edef0f1317170af0e20035",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "application/json": "[\"text/plain+float:-0.597956\", \"text/plain+float:0.381836\"]"
-          }
-        }
-      ],
+      "outputs": [],
       "console": []
     }
   ]

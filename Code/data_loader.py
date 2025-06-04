@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.11"
 app = marimo.App(width="full")
 
 with app.setup:
@@ -80,7 +78,7 @@ class XVData(Dataset):
 @app.function
 def PA_dataset_loader(dir='../Datasets/Rat PA Study/'):
     csv_dir = os.path.join(dir, 'csv')
-    files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if f.endswith('.csv') and ('PA7' in f or 'PA14' in f)]
+    files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if f.endswith('.csv') ]
     return files
 
 
