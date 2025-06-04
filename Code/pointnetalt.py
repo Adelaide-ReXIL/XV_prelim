@@ -62,7 +62,8 @@ class PointCloud(Dataset):
         mesh = trimesh.load(path)
         pts = mesh.sample(self.n)  # (n, 3)
 
-        s = np.random.normal(0, 1, size=(self.n, 1))
+        s = np.random.uniform(0.3, 0.6, size=(self.n, 1))
+
 
         # normalize x, y, z to 0..1
         mins = pts.min(axis=0, keepdims=True)
@@ -95,7 +96,13 @@ def _(train_data):
     sample=train_data[11][0]
     df = pd.DataFrame(sample.numpy(), columns=["SV", "x", "y", "z"])
 
-    return df, sample
+    return (df,)
+
+
+@app.cell
+def _(df):
+    df
+    return
 
 
 @app.cell
@@ -135,7 +142,7 @@ def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
     xyz_centers = centers4d[..., 1:]          # (B, S, 3)
 
     # 2) Compute per-center s‐radius: r_s_dyn[b,k] = 1.5 * s_centers[b,k]
-    r_s_dyn = 1.25* s_centers                   # (B, S)
+    r_s_dyn = torch.clamp(1.25 * s_centers, min=0.01, max=0.2)           # (B, S)
 
     # 3) Compute |s_j – s_center_k| for all j,k:
     #    shape (B, S, N): 
@@ -151,7 +158,7 @@ def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
     # 5) Build boolean masks for each criterion
     #    mask_s[b,k,j]  = True if |s_j – s_ck| < r_s_dyn[b,k]
     #    mask_xyz[b,k,j]= True if dxyz2[b,k,j] < (r_xyz)^2
-    mask_s   = abs_diff_s < r_s_dyn.unsqueeze(-1)        # (B, S, N)
+    mask_s   = abs_diff_s <r_s_dyn.unsqueeze(-1)        # (B, S, N)
     mask_xyz = dxyz2 < (r_xyz * r_xyz)                    # (B, S, N)
 
     # 6) Combined mask: valid[b,k,j] = mask_s AND mask_xyz
@@ -177,6 +184,9 @@ def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
     # 9) Rebuild valid_mask: check again whether each chosen idx[b,k,m] was truly valid
     gathered_valid = valid.gather(dim=-1, index=idx)     # (B, S, max_samples)
     valid_mask = gathered_valid.long()                    # convert to 0/1
+
+    # valid_counts = valid_mask[0].sum(dim=-1)  # (S,)
+    # print("Min / Mean / Max neighbors per center:", valid_counts.min().item(), valid_counts.float().mean().item(), valid_counts.max().item())
 
     return idx, valid_mask
 
@@ -208,7 +218,7 @@ def geometry_centers(coords, num_segments=6):
 
 
 @app.cell
-def _(sample):
+def _():
     from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -246,15 +256,26 @@ def _(sample):
 
 
 
-    pos = sample[:, 1:]  # [N, 3]
-    coords = pos.unsqueeze(0)  # [1, N, 3]
-    centers = geometry_centers(coords, num_segments=2)  # [1, S, 3], where S = 6×6×6
-    centers_flat = centers.view(1, 2**3, 3)
 
-    neighbor_indices, valid_mask = ball_query_4d_dynamic_s(coords, centers_flat,1, max_samples=128)
+    # coords4d = sample.unsqueeze(0)  # [1, N, 4]
 
+    # coords3d = coords4d[..., 1:] 
+    # centers3d = geometry_centers(coords3d, 6).view(1, -1, 3)
+    # S = centers3d.shape[1]
 
-    visualize_ball_query(coords, centers_flat, neighbor_indices, valid_mask)
+    # diff3d = centers3d.unsqueeze(2) - coords3d.unsqueeze(1)  
+    # dist3d = torch.sum(diff3d * diff3d, dim=-1)            
+    # _, idx_min = torch.min(dist3d, dim=-1)                
+    # batch_idx = torch.arange(1, device=coords4d.device).view(1, 1).expand(1, S)
+    # s_centers = coords4d[batch_idx, idx_min, 0]             
+
+    # centers4d = torch.cat([
+    #     s_centers.unsqueeze(-1),    # (B, S, 1)
+    #     centers3d                   # (B, S, 3)
+    # ], dim=-1)   
+    # neighbor_indices, valid_mask = ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz=1, max_samples=64)
+
+    # visualize_ball_query(coords4d[..., 1:], centers4d[..., 1:], neighbor_indices, valid_mask, sample_centers=centers4d.shape[1])
 
 
     return
@@ -370,7 +391,7 @@ class PointNetPP(nn.Module):
             npoint=512,
             mlp=[8, 64, 64, 128],
             s_scale_factor=1,
-            r_xyz=2,
+            r_xyz=1.5,
             max_samples=128,
             use_geometry_centers=True,
             num_segments=8
@@ -381,7 +402,7 @@ class PointNetPP(nn.Module):
             npoint=128,
             mlp=[132, 128, 128, 256],
             s_scale_factor=1,
-            r_xyz=1,
+            r_xyz=0.75,
             max_samples=64,
             use_geometry_centers=True,
             num_segments=6
@@ -499,7 +520,7 @@ def _():
 
 @app.cell
 def _(model):
-    torch.save(model, 'pointnetpp_4d_full5.pth')
+    torch.save(model, 'pointnetpp_4d_full6.pth')
     return
 
 
