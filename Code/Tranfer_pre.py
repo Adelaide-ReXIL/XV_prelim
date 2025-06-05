@@ -32,11 +32,11 @@ def _():
 
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load("pointnetpp_4d_full7.pth",weights_only=False)
+        model:PointNetPP = torch.load("pointnetpp_4d_full8.pth",weights_only=False)
     elif torch.mps.is_available():
-        model: PointNetPP = torch.load("pointnetpp_4d_full7.pth", map_location=torch.device('mps'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full8.pth", map_location=torch.device('mps'), weights_only=False)
     else:
-        model: PointNetPP = torch.load("pointnetpp_4d_full7.pth", map_location=torch.device('cpu'), weights_only=False)
+        model: PointNetPP = torch.load("pointnetpp_4d_full8.pth", map_location=torch.device('cpu'), weights_only=False)
 
 
 
@@ -45,11 +45,11 @@ def _():
                 nn.Linear(1024, 512),
                 nn.BatchNorm1d(512),
                 nn.ReLU(),
-                nn.Dropout(0.4),
+                nn.Dropout(0.2),
                 nn.Linear(512, 256),
                 nn.BatchNorm1d(256),
                 nn.ReLU(),
-                nn.Dropout(0.4),
+                nn.Dropout(0.2),
                 nn.Linear(256, 2)
             )
 
@@ -65,7 +65,7 @@ def _():
     data_files = []
     data_files.extend(csv_loader())
     data_files.extend(bead_study_loader())
-    # data_files.extend(PA_dataset_loader())
+    data_files.extend(PA_dataset_loader())
 
     wt = [d for d in data_files if 'wt' in d.lower()]
     cf = [d for d in data_files if 'wt'  not in d.lower()]
@@ -87,9 +87,16 @@ def _():
     random.shuffle(train_files)
     random.shuffle(test_files)
 
+    label_map = {}
+
+    for f in wt:
+        label_map[f] = 0
+    for f in cf:
+        label_map[f] = 1
+
     print(len(wt),len(cf))
 
-    return cf, data_files, test_files, train_files, wt
+    return cf, data_files, label_map, test_files, train_files, wt
 
 
 @app.cell
@@ -120,7 +127,7 @@ def _(data_files):
 @app.cell
 def _(data_files):
     # Sampled
-    datas = XVData(data_files[:2], n=10000, transform=True)
+    datas = XVData(data_files[:2], n=10000, transform=True,frames=False)
     sample = datas[0][0]
     sample_df = pd.DataFrame(sample.numpy(), columns=["SV", "x", "y", "z"])
     print(len(sample_df))
@@ -134,25 +141,25 @@ def _():
 
 
 @app.cell
-def _(cf, model, train_files, wt):
+def _(cf, label_map, model, train_files, wt):
     device = torch.device('cuda:0')
     model.to(device)
 
 
-    dataset = XVData(train_files[:-16],n=7500)
-    val = XVData(train_files[-16:],n=7500)
+    dataset = XVData(train_files[-16:],n=7500,map=label_map)
+    val = XVData(train_files[-16:],n=7500,map=label_map)
 
 
     weights = torch.tensor([1.0, len(cf)/len(wt)], device=device)
-    # criterion = nn.CrossEntropyLoss(weight=weights)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=weights)
+    # criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
     train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val, batch_size=8, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val, batch_size=4, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
 
-    num_epochs = 100
+    num_epochs = 50
     patience = 10
     best_val_loss = float('inf')
     counter = 0
@@ -191,11 +198,11 @@ def _(cf, model, train_files, wt):
 
 
 @app.cell
-def _(device, model, test_files):
+def _(device, label_map, model, test_files):
     def _():
         import time
 
-        test = XVData(test_files,n=7500)
+        test = XVData(test_files,n=7500,map=label_map)
         testloader = DataLoader(test, batch_size=2, shuffle=False, num_workers=16, pin_memory=True)
 
         model.eval()
@@ -213,17 +220,15 @@ def _(device, model, test_files):
 
         model.eval()
 
-        points, label = test[0]
-        points = points.unsqueeze(0).to(device).float()
-        label = label.argmax().item()
+
 
         start = time.time()
         with torch.no_grad():
             output = model(points)
         end = time.time()
 
-        pred = output.argmax(dim=1).item()
-        print(f"True label: {label}, Predicted: {pred}, Time: {(end - start) * 1000:.2f} ms")
+        pred = output
+        print(f" Predicted: {pred}, Time: {(end - start) * 1000:.2f} ms")
 
         from sklearn.metrics import f1_score, confusion_matrix, classification_report
 
@@ -266,7 +271,12 @@ def _(device, model, test_files):
 
 @app.cell
 def _(model):
-    torch.save(model, 'pretrained_6.pth')
+    torch.save(model, 'pretrained_10.pth')
+    return
+
+
+@app.cell
+def _():
     return
 
 

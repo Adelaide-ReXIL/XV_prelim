@@ -1,0 +1,367 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.13.11"
+  },
+  "cells": [
+    {
+      "id": "setup",
+      "code_hash": "aa0d6144b0db9c692f79ce2f17769086",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "3c6dc6e44a9896055ae074788df8cdc0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre style='font-size: 12px'>PointNetPP(\n  (sa1): PointNetSetAbstraction(\n    (mlp): Sequential(\n      (0): Conv1d(8, 64, kernel_size=(1,), stride=(1,))\n      (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (2): ReLU()\n      (3): Conv1d(64, 64, kernel_size=(1,), stride=(1,))\n      (4): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (5): ReLU()\n      (6): Conv1d(64, 128, kernel_size=(1,), stride=(1,))\n      (7): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (8): ReLU()\n    )\n  )\n  (sa2): PointNetSetAbstraction(\n    (mlp): Sequential(\n      (0): Conv1d(132, 128, kernel_size=(1,), stride=(1,))\n      (1): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (2): ReLU()\n      (3): Conv1d(128, 128, kernel_size=(1,), stride=(1,))\n      (4): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (5): ReLU()\n      (6): Conv1d(128, 256, kernel_size=(1,), stride=(1,))\n      (7): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (8): ReLU()\n    )\n  )\n  (sa3): PointNetSetAbstraction(\n    (mlp): Sequential(\n      (0): Conv1d(256, 256, kernel_size=(1,), stride=(1,))\n      (1): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (2): ReLU()\n      (3): Conv1d(256, 512, kernel_size=(1,), stride=(1,))\n      (4): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (5): ReLU()\n      (6): Conv1d(512, 1024, kernel_size=(1,), stride=(1,))\n      (7): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n      (8): ReLU()\n    )\n  )\n  (classifier): Sequential(\n    (0): Linear(in_features=1024, out_features=512, bias=True)\n    (1): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n    (2): ReLU()\n    (3): Dropout(p=0.2, inplace=False)\n    (4): Linear(in_features=512, out_features=256, bias=True)\n    (5): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n    (6): ReLU()\n    (7): Dropout(p=0.2, inplace=False)\n    (8): Linear(in_features=256, out_features=2, bias=True)\n  )\n)</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "363bd7348e813b97e91d06c9f152a509",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "17 17\n"
+        }
+      ]
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "11880042167d7dcb39bb2e2f2330b7b7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 1 Train Loss: 0.7419\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 2 Train Loss: 0.6037\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 3 Train Loss: 0.4903\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 4 Train Loss: 0.6589\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 5 Train Loss: 0.5517\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 6 Train Loss: 0.4568\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 7 Train Loss: 0.4434\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 8 Train Loss: 0.4021\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 9 Train Loss: 0.4198\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 10 Train Loss: 0.3055\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 11 Train Loss: 0.3483\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 12 Train Loss: 0.3357\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 13 Train Loss: 0.3187\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 14 Train Loss: 0.3320\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 15 Train Loss: 0.2418\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 16 Train Loss: 0.1885\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 17 Train Loss: 0.2965\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 18 Train Loss: 0.2254\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 19 Train Loss: 0.2760\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 20 Train Loss: 0.2361\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 21 Train Loss: 0.1758\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 22 Train Loss: 0.2854\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 23 Train Loss: 0.1933\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 24 Train Loss: 0.1659\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 25 Train Loss: 0.2315\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 26 Train Loss: 0.2694\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 27 Train Loss: 0.1753\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 28 Train Loss: 0.1820\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 29 Train Loss: 0.1540\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 30 Train Loss: 0.1857\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 31 Train Loss: 0.1114\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 32 Train Loss: 0.1373\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 33 Train Loss: 0.1752\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 34 Train Loss: 0.1012\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 35 Train Loss: 0.0939\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 36 Train Loss: 0.1360\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 37 Train Loss: 0.1155\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 38 Train Loss: 0.1023\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 39 Train Loss: 0.1047\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 40 Train Loss: 0.0860\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 41 Train Loss: 0.1306\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 42 Train Loss: 0.1428\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 43 Train Loss: 0.0880\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 44 Train Loss: 0.1075\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 45 Train Loss: 0.0756\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 46 Train Loss: 0.0803\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 47 Train Loss: 0.0819\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 48 Train Loss: 0.0962\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 49 Train Loss: 0.0715\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Epoch 50 Train Loss: 0.0973\n"
+        }
+      ]
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "cd6bc83a346a8cb5262f2b274a02edf8",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Test Accuracy: 100.00%\n Predicted: tensor([[ 1.0635, -0.6502],\n        [ 0.8976, -0.5621]], device='cuda:0'), Time: 4.57 ms\n"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Accuracy: 100.00%\nF1 Score (macro): 1.0000\nF1 Score (weighted): 1.0000\nConfusion Matrix:\n[[3 0]\n [0 3]]\nClassification Report:\n              precision    recall  f1-score   support\n\n           0       1.00      1.00      1.00         3\n           1       1.00      1.00      1.00         3\n\n    accuracy                           1.00         6\n   macro avg       1.00      1.00      1.00         6\nweighted avg       1.00      1.00      1.00         6\n\n"
+        }
+      ]
+    },
+    {
+      "id": "PKri",
+      "code_hash": "12401de3ee73f325ebac2ca707b31d9d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

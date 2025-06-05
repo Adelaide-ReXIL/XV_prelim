@@ -25,6 +25,9 @@ def find_max_min(files):
     data=np.array([])
     for f in files:
         temp=pd.read_csv(f)
+        if len(temp.columns)==5:
+            temp=temp[temp['Frame'] == 6].drop(columns=['Frame'])
+            
         temp.columns=['SV','x','y','z']
         data=np.concatenate((data,temp['SV'].values))
 
@@ -33,20 +36,30 @@ def find_max_min(files):
 
 @app.class_definition
 class XVData(Dataset):
-    def __init__(self, csv_files, transform=False,n=6000):
+    def __init__(self, csv_files, transform=False,n=6000,frames=False,map={}):
         self.csv_files = csv_files
         self.transform = transform
         self.n=n
         self.sv_norm=find_max_min(csv_files)
+        self.frames=frames
+        self.label=map
 
     def __len__(self):
         return len(self.csv_files)
 
     def _get_label(self, name):
-        return 0 if ('WT' in name) or ( 'wt' in name) else 1
+        if self.label:
+            return self.label[name]        
+        if ('WT' in name) or ( 'wt' in name):
+            return 0
+        else:
+            return 1
+        
 
     def __getitem__(self, idx):
         data = pd.read_csv(self.csv_files[idx])
+        if self.frames==True or len(data.columns)==5:
+            data=data[data['Frame'] == 6].drop(columns=['Frame'])
         data.columns = ['SV', 'x', 'y', 'z']
 
         if self.transform:
@@ -78,7 +91,7 @@ class XVData(Dataset):
 @app.function
 def PA_dataset_loader(dir='../Datasets/Rat PA Study/'):
     csv_dir = os.path.join(dir, 'csv')
-    files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if f.endswith('.csv') ]
+    files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if f.endswith('.csv') and 'PA7' in f]
     return files
 
 
@@ -125,6 +138,60 @@ def bead_study_loader(dir='../Datasets/Rat Sterile Bead Study'):
 def _():
     find_max_min(sheep_dataset_loader())
     return
+
+
+@app.function
+def child_loader(dir='../Datasets/XV Clinical Data'):
+    mapping=pd.read_csv(f'{dir}/WCH_XV_genotypes.csv')
+    mapping = mapping.iloc[:, :-2]
+    mapping.columns = ['Record ID', 'Condition']
+    mapping=dict(zip(mapping['Record ID'],mapping['Condition']))
+    csv_files = [fold for fold in os.listdir(dir) if os.path.isdir(os.path.join(dir, fold)) and 'WCH' in fold]
+
+    control=[]
+    cf=[]
+    for fold in csv_files:
+        p=os.path.join(dir, fold)
+        key=int(p.split('-')[2])-10000
+        if key==26: key=25
+        files=[f for f in os.listdir(p) if os.path.isdir(os.path.join(p, f)) and '-LOBAR' not in f and 'WCH' in f]
+        curr_csv=[]
+        for f in files:
+            path=os.path.join(p, f)
+            csv = [c for c in os.listdir(path) if c.endswith('_final.csv') and 'INSP' in c]
+            if csv:
+                csv=csv[0]
+            else:
+                continue
+                
+            if 'Control' in mapping[key]:
+                control.append(path+'/'+csv)
+            else:
+                cf.append(path+'/'+csv)
+            
+
+
+    return control,cf
+
+
+@app.function
+def adult_loader(dir='../Datasets/XV Clinical Data/adult_controls_from_Miami'):
+    csv_files = [fold for fold in os.listdir(dir) if os.path.isdir(os.path.join(dir, fold))]
+    control=[]
+    for fold in csv_files:
+        p=os.path.join(dir, fold)
+        files=[f for f in os.listdir(p) if os.path.isdir(os.path.join(p, f)) and '-LOBAR' not in f]
+        curr_csv=[]
+        for f in files:
+            path=os.path.join(p, f)
+            csv = [c for c in os.listdir(path) if c.endswith('_final.csv') and 'INSP' in c]
+            if csv:
+                csv=csv[0]
+            else:
+                continue
+            control.append(path+'/'+csv)
+
+    return control
 
 
 if __name__ == "__main__":
