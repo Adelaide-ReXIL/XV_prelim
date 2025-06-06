@@ -28,7 +28,7 @@ def _():
 def _():
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load('pretrained_10.pth',weights_only=False)
+        model:PointNetPP = torch.load('pretrained_13.pth',weights_only=False)
     elif torch.mps.is_available():
         model: PointNetPP = torch.load('pretrained_best_86.pth', map_location=torch.device('mps'), weights_only=False)
     else:
@@ -83,11 +83,11 @@ def _(label_map, model, train_files):
 
 
     dataset = XVData(train_files,n=7500,frames=True,map=label_map)
-
+    losses=[]
 
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=5e-5)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
     train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
@@ -113,12 +113,24 @@ def _(label_map, model, train_files):
 
         # scheduler.step(val_loss)
 
-
+        losses.append(running_loss / len(train_loader))
         print(f"Epoch {epoch+1} Train Loss: {running_loss / len(train_loader):.4f}")
 
 
 
-    return (device,)
+    return device, losses
+
+
+@app.cell
+def _(losses):
+    import matplotlib.pyplot as plt
+    plt.plot(losses)
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
@@ -195,7 +207,7 @@ def _(device, label_map, model, test_files):
 
 @app.cell
 def _(model):
-    torch.save(model, 'trained_best_100.pth')
+    torch.save(model, 'trained_5.pth')
     return
 
 

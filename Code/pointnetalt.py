@@ -21,6 +21,9 @@ with app.setup:
     import torch.nn as nn
     import torch.nn.functional as F
     import random
+    import pickle
+    with open('model_normal.pkl', 'rb') as f:
+        model_diff = pickle.load(f)
 
 
 @app.cell
@@ -62,15 +65,15 @@ class PointCloud(Dataset):
         mesh = trimesh.load(path)
         pts = mesh.sample(self.n)  # (n, 3)
 
-        s = np.random.uniform(0.2, 0.8, size=(self.n, 1))
-
 
         # normalize x, y, z to 0..1
         mins = pts.min(axis=0, keepdims=True)
         maxs = pts.max(axis=0, keepdims=True)
         norm_pts = (pts - mins) / (maxs - mins + 1e-8)
 
-        pts_out = np.hstack([s, norm_pts])  # (n, 4)
+        s = model_diff.predict(pd.DataFrame(norm_pts, columns=[ "x", "y", "z"]))
+        s = (s - s.min()) / (s.max() - s.min() + 1e-8)
+        pts_out = np.hstack([s.reshape(-1, 1), norm_pts])  # (n, 4)
 
         label = np.zeros(len(self.classes))
         for cls in self.labels:
@@ -520,7 +523,7 @@ def _():
 
 @app.cell
 def _(model):
-    torch.save(model, 'pointnetpp_4d_full8.pth')
+    torch.save(model, 'pointnetpp_4d_full10.pth')
     return
 
 

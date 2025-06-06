@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.11"
 app = marimo.App(width="columns")
 
 with app.setup:
@@ -23,6 +21,9 @@ with app.setup:
     import torch.nn as nn
     import torch.nn.functional as F
     import random
+    import pickle
+    with open('model_normal.pkl', 'rb') as f:
+        model_diff = pickle.load(f)
 
 
 @app.cell
@@ -64,14 +65,14 @@ class PointCloud(Dataset):
         mesh = trimesh.load(path)
         pts = mesh.sample(self.n)  # (n, 3)
 
-        s = np.random.normal(0, 1, size=(self.n, 1))
 
         # normalize x, y, z to 0..1
         mins = pts.min(axis=0, keepdims=True)
         maxs = pts.max(axis=0, keepdims=True)
         norm_pts = (pts - mins) / (maxs - mins + 1e-8)
 
-        pts_out = np.hstack([s, norm_pts])  # (n, 4)
+        s = model_diff.predict(pd.DataFrame(norm_pts, columns=[ "x", "y", "z"]))
+        pts_out = np.hstack([s.reshape(-1, 1), norm_pts])  # (n, 4)
 
         label = np.zeros(len(self.classes))
         for cls in self.labels:

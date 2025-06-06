@@ -32,7 +32,7 @@ def _():
 
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load("pointnetpp_4d_full8.pth",weights_only=False)
+        model:PointNetPP = torch.load("pointnetpp_4d_full10.pth",weights_only=False)
     elif torch.mps.is_available():
         model: PointNetPP = torch.load("pointnetpp_4d_full8.pth", map_location=torch.device('mps'), weights_only=False)
     else:
@@ -45,11 +45,11 @@ def _():
                 nn.Linear(1024, 512),
                 nn.BatchNorm1d(512),
                 nn.ReLU(),
-                nn.Dropout(0.2),
+                nn.Dropout(0.15),
                 nn.Linear(512, 256),
                 nn.BatchNorm1d(256),
                 nn.ReLU(),
-                nn.Dropout(0.2),
+                nn.Dropout(0.15),
                 nn.Linear(256, 2)
             )
 
@@ -146,23 +146,24 @@ def _(cf, label_map, model, train_files, wt):
     model.to(device)
 
 
-    dataset = XVData(train_files[-16:],n=7500,map=label_map)
+    dataset = XVData(train_files[:-16],n=7500,map=label_map)
     val = XVData(train_files[-16:],n=7500,map=label_map)
 
 
     weights = torch.tensor([1.0, len(cf)/len(wt)], device=device)
     criterion = nn.CrossEntropyLoss(weight=weights)
     # criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=5e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
     train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
-    val_loader = DataLoader(val, batch_size=4, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
+    val_loader = DataLoader(val, batch_size=8, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
 
     num_epochs = 50
     patience = 10
     best_val_loss = float('inf')
     counter = 0
+    losses=[]
 
     for epoch in range(num_epochs):
         model.train()
@@ -187,14 +188,24 @@ def _(cf, label_map, model, train_files, wt):
                 outputs = model(points)
                 val_loss += criterion(outputs, labels).item()
         val_loss /= max(len(val_loader),1)
+        loss+=0.1*val_loss
         scheduler.step(val_loss)
+        losses.append(running_loss / len(train_loader))
+
 
 
         print(f"Epoch {epoch+1} Train Loss: {running_loss / len(train_loader):.4f}  Val Loss: {val_loss:.4f}")
 
 
 
-    return (device,)
+    return device, losses
+
+
+@app.cell
+def _(losses):
+    import matplotlib.pyplot as plt
+    plt.plot(losses)
+    return
 
 
 @app.cell
@@ -271,7 +282,7 @@ def _(device, label_map, model, test_files):
 
 @app.cell
 def _(model):
-    torch.save(model, 'pretrained_10.pth')
+    torch.save(model, 'pretrained_14.pth')
     return
 
 
