@@ -1,0 +1,200 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.13.11"
+  },
+  "cells": [
+    {
+      "id": "setup",
+      "code_hash": "b12ab614eb697d77d5491ffc971fb0f6",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "5bf7b9f077bffc08fab443a4a6c8eb11",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "c3420865c3fb9b2c0d0c42711adcfab2",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "8ebe3ebc799820983a3f2e5b04bc233d",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "0cca89749f05908a699479d6d09f6096",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "bc9020bbd33b1727d6e539ce66a12fd7",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "ca237ff09e646363417e1ef180b73015",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "087b6f5b60780dfd105c0a5f8ba36e30",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "648c93424b948e60aef83045209efcf2",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "6794f73130eb079a8659f6dc34445a7e",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "b6290008f3be470626304667c2f7dd8a",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "9c7982827f1df1158c92145ba320d5db",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "982a35dbfce8e95ac7757a07b61a3736",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "d6970543ee8f15f9898ac4e256203a57",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "ed676d074ce6d4ec75d8249e9880c677",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "5cabde611ad481449de58307914508ef",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "4048454a1811fdbb8ffbe3f0eb9703b2",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "97d29f114eec1a437de6d8b4286bc2f7",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "3b41e21b7debcffe1eed6dda0e46fe0c",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "252524e37d2e5e7f97744d25cc0ed4d0",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "90bc953a6729d8e6b4eb9d34f2ef18d0",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "e2744e68631d32948bd744b474a638ba",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "f81514313196eff5ed5338f41abff4e8",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "8a5976cd93f55ad743e19b06d135997c",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "7ec07f0435694ae343150d566ce73e59",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "41764e616a1ee0a632bf4e834b92db2c",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "7fde6f0033bac5d0771f03a3b803a1dc",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "b248daef82c45f72748e30dc99a9b594",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "pHFh",
+      "code_hash": "5594ee8702495175c6a320dbeb7d5952",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "NCOB",
+      "code_hash": "7ac6c551cb722e2d6f095c9d8ee617e2",
+      "outputs": [],
+      "console": []
+    }
+  ]
+}
