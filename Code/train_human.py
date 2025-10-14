@@ -28,11 +28,16 @@ def _():
 def _():
     model=None
     if torch.cuda.is_available():
-        model:PointNetPP = torch.load('pretrained_13.pth',weights_only=False)
+        model:PointNetPP = torch.load('pretrained_16.pth',weights_only=False)
     elif torch.mps.is_available():
         model: PointNetPP = torch.load('pretrained_best_86.pth', map_location=torch.device('mps'), weights_only=False)
     else:
         model: PointNetPP = torch.load('pretrained_best_86.pth', map_location=torch.device('cpu'), weights_only=False)
+
+    # for block in [model.sa2,model.sa3]:
+    #     for param in block.parameters():
+    #         param.requires_grad = False
+
 
     model
 
@@ -50,28 +55,28 @@ def _():
     random.shuffle(control)
     random.shuffle(cf)
 
-    min_train = int(0.8 * min(len(control), len(cf)))
-    min_test = int(0.2 * min(len(control), len(cf)))
+    # Split control
+    n_control = len(control)
+    n_control_train = int(0.8 * n_control)
+    control_train = control[:n_control_train]
+    control_test = control[n_control_train:]
 
-    control_train = control[:min_train]
-    cf_train = cf[:min_train]
-    control_test = control[min_train:min_train + min_test]
-    cf_test = cf[min_train:min_train + min_test]
+    # Split cf
+    n_cf = len(cf)
+    n_cf_train = int(0.8 * n_cf)
+    cf_train = cf[:n_cf_train]
+    cf_test = cf[n_cf_train:]
 
     train_files = control_train + cf_train
     test_files = control_test + cf_test
 
     random.shuffle(train_files)
-
     random.shuffle(test_files)
 
-    label_map = {}
+    label_map = {f: 0 for f in control}
+    label_map.update({f: 1 for f in cf})
 
-    for f in control_train + control_test:
-        label_map[f] = 0
-    for f in cf_train + cf_test:
-        label_map[f] = 1
-    print(len(control_train) + len(control_test), len(cf_train) + len(cf_test))
+    print(len(train_files), len(test_files))  # Total per class
 
     return label_map, test_files, train_files
 
@@ -86,16 +91,17 @@ def _(label_map, model, train_files):
     losses=[]
 
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=1e-5)
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.25, patience=3,  min_lr=1e-8)
 
-    train_loader = DataLoader(dataset, batch_size=16, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
-    num_epochs = 50
+    train_loader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=28, pin_memory=True, drop_last=True)
+    num_epochs = 100
     patience = 10
     best_val_loss = float('inf')
     counter = 0
 
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-4,  steps_per_epoch=len(train_loader), epochs=num_epochs)
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -109,6 +115,10 @@ def _(label_map, model, train_files):
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            scheduler.step()
+
+
+
 
 
         # scheduler.step(val_loss)
@@ -118,7 +128,7 @@ def _(label_map, model, train_files):
 
 
 
-    return device, losses
+    return device, losses, train_loader
 
 
 @app.cell
@@ -134,12 +144,12 @@ def _():
 
 
 @app.cell
-def _(device, label_map, model, test_files):
+def _(device, label_map, model, test_files, train_loader):
     def _():
         import time
 
         test = XVData(test_files,n=7500,frames=True,map=label_map)
-        testloader = DataLoader(test, batch_size=2, shuffle=False, num_workers=16, pin_memory=True)
+        testloader = DataLoader(test, batch_size=1, shuffle=False, num_workers=16, pin_memory=True)
 
         model.eval()
         correct = total = 0
@@ -200,6 +210,38 @@ def _(device, label_map, model, test_files):
         print("Classification Report:")
         print(classification_report(all_labels, all_preds))
 
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for points, labels in train_loader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                preds = outputs.argmax(dim=1)
+
+                all_preds.append(preds.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
+        # Concatenate all batches
+        all_preds = np.concatenate(all_preds)
+        all_labels = np.concatenate(all_labels)
+
+        acc = (all_preds == all_labels).mean() * 100
+        print(f"Accuracy: {acc:.2f}%")
+
+        # F1 Score
+        print(f"F1 Score (macro): {f1_score(all_labels, all_preds, average='macro'):.4f}")
+        print(f"F1 Score (weighted): {f1_score(all_labels, all_preds, average='weighted'):.4f}")
+
+        # Confusion Matrix
+        print("Confusion Matrix:")
+        print(confusion_matrix(all_labels, all_preds))
+
+        # Optional: Full report
+        print("Classification Report:")
+        print(classification_report(all_labels, all_preds))
+
 
     _() 
     return
@@ -207,7 +249,97 @@ def _(device, label_map, model, test_files):
 
 @app.cell
 def _(model):
-    torch.save(model, 'trained_5.pth')
+    torch.save(model, 'trained_8.pth')
+    return
+
+
+@app.cell
+def _():
+    a,b=child_loader()
+    return a, b
+
+
+@app.cell
+def _(a, b, device, model, train_loader):
+    def _():
+        model.eval()
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for points, labels in train_loader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                preds = outputs.argmax(dim=1)
+
+                all_preds.append(preds.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
+        # Concatenate all batches
+        all_preds = np.concatenate(all_preds)
+        all_labels = np.concatenate(all_labels)
+        print(all_preds,all_labels)
+        acc = (all_preds == all_labels).mean() * 100
+        print(f"Accuracy: {acc:.2f}%")
+
+        # F1 Score
+        print(f"F1 Score (macro): {f1_score(all_labels, all_preds, average='macro'):.4f}")
+        print(f"F1 Score (weighted): {f1_score(all_labels, all_preds, average='weighted'):.4f}")
+
+        # Confusion Matrix
+        print("Confusion Matrix:")
+        print(confusion_matrix(all_labels, all_preds))
+
+        # Optional: Full report
+        print("Classification Report:")
+        print(classification_report(all_labels, all_preds))
+
+        all_preds = []
+        all_labels = []
+        model.eval()
+        new_map={}
+
+        for i in b:
+            new_map[i]=1
+        for i in a:
+            new_map[i]=0
+
+
+
+        a.extend(b)
+        set=XVData(a,frames=True,n=7500,map=new_map)
+        loader=DataLoader(set , batch_size=1, shuffle=False, num_workers=28, pin_memory=True, drop_last=True)
+        with torch.no_grad():
+            for points, labels in loader:
+                points = points.to(device, non_blocking=True).float()
+                labels = labels.to(device, non_blocking=True).long()
+                outputs = model(points)
+                preds = outputs.argmax(dim=1)
+
+                all_preds.append(preds.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
+        # Concatenate all batches
+        all_preds = np.concatenate(all_preds)
+        all_labels = np.concatenate(all_labels)
+        print(all_preds,all_labels)
+        acc = (all_preds == all_labels).mean() * 100
+        print(f"Accuracy: {acc:.2f}%")
+
+        # F1 Score
+        print(f"F1 Score (macro): {f1_score(all_labels, all_preds, average='macro'):.4f}")
+        print(f"F1 Score (weighted): {f1_score(all_labels, all_preds, average='weighted'):.4f}")
+
+        # Confusion Matrix
+        print("Confusion Matrix:")
+        print(confusion_matrix(all_labels, all_preds))
+
+        # Optional: Full report
+        print("Classification Report:")
+        print(classification_report(all_labels, all_preds))
+
+    _()
     return
 
 

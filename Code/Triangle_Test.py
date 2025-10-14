@@ -19,9 +19,12 @@ with app.setup:
 @app.function
 def plot_3d_points(df):
     fig = plt.figure()
+    fig.patch.set_facecolor('white')
     ax = fig.add_subplot(111, projection='3d')
+    ax.set_facecolor('white')
     ax.scatter(df['x'], df['y'], df['z'], c=df['SV'], cmap='RdYlGn', s=10)
-    return plt.gca()
+    ax.set_axis_off()
+    return ax
 
 
 @app.function

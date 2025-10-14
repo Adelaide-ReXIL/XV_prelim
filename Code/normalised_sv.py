@@ -40,6 +40,8 @@ def plot_3d_points(df,vmin=-0.22,vmax=0.89):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     sc = ax.scatter(df['x'], df['y'], df['z'], c=df['SV'], cmap='RdYlGn', s=10, vmax=vmax, vmin=vmin)
+    ax.set_axis_off()
+
     fig.colorbar(sc, ax=ax, label='SV')
     return ax
 
@@ -58,34 +60,34 @@ def norm_super(data):
 
 @app.function
 def rotate_lung_data(df, show_plots=False):
-    """
-    Rotate lung data to optimal orientation
+        """
+        Rotate lung data to optimal orientation
 
-    Parameters:
-    df (pandas.DataFrame): DataFrame with columns [specific_ventilation, x, y, z]
-    show_plots (bool): Whether to display diagnostic plots
+        Parameters:
+        df (pandas.DataFrame): DataFrame with columns [specific_ventilation, x, y, z]
+        show_plots (bool): Whether to display diagnostic plots
 
-    Returns:
-    pandas.DataFrame: DataFrame with rotated coordinates
-    """
-    # Convert to numpy array expected by rotation functions
-    data = df.values
+        Returns:
+        pandas.DataFrame: DataFrame with rotated coordinates
+        """
+        # Convert to numpy array expected by rotation functions
+        data = df.values
 
-    # Find optimal rotation angle
-    angle = find_optimal_angle(data, show_plots)
+        # Find optimal rotation angle
+        angle = find_optimal_angle(data, show_plots)
 
-    # Apply rotation
-    xs, ys, zs, vals = rotate_points(data, angle)
+        # Apply rotation
+        xs, ys, zs, vals = rotate_points(data, angle)
 
-    # Create output DataFrame with rotated coordinates
-    rotated_df = pd.DataFrame({
-        'SV': vals,
-        'x': xs,
-        'y': ys,
-        'z': zs,
-    })
+        # Create output DataFrame with rotated coordinates
+        rotated_df = pd.DataFrame({
+            'SV': vals,
+            'x': xs,
+            'y': ys,
+            'z': zs,
+        })
 
-    return rotated_df
+        return rotated_df
 
 
 @app.function
@@ -593,7 +595,7 @@ def get_diff(path='',model=None,df=None):
         test_2["SV"]=pred
         test_3=test_2.copy() 
         test_3['SV']=test['SV']**2-test_2['SV']**2
-        return test,test_2,test_3,plot_3d_points(test),plot_3d_points(test_2),plot_3d_points(test_3,-0.05,0.05)
+        return test,test_2,test_3,plot_3d_points(test),plot_3d_points(test_2),plot_3d_points(test_3,-0.1,0.1)
 
 
 @app.cell
@@ -746,6 +748,20 @@ def _(model):
         c17_res.append(lung_plot(df=temp_17,model=model,vmin=temp_17['SV'].min(),vmax=temp_17['SV'].max()))
 
     return (c17_res,)
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    a=pd.read_csv('../Datasets/XV Clinical Data/WCH-CF-10017-20240517/WCH-CF-10017-INSP/WCH-CF-10017-INSP_final.csv')
+    a.columns=['Frame','SV','x','y','z']
+    a=a[a['Frame']==1]
+    plot_3d_points(a,vmin=a['SV'].min(),vmax=a['SV'].max())
+    return
 
 
 @app.cell
