@@ -7,14 +7,7 @@
     {
       "id": "setup",
       "code_hash": "bc032142d4ec461c96ee311e41f71396",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
+      "outputs": [],
       "console": []
     },
     {
@@ -25,27 +18,20 @@
     },
     {
       "id": "MJUe",
-      "code_hash": "c9db54fbdf8a6a36ca9d1824b9a98ad7",
+      "code_hash": "aa3bcdf4cb198209de5a9e79ef4a5ce8",
       "outputs": [],
       "console": []
     },
     {
       "id": "vblA",
-      "code_hash": "34a2b24a87c1f772475825b4bc753075",
+      "code_hash": "25674f2c6fb83754a84aa759f9d46e5f",
       "outputs": [],
       "console": []
     },
     {
       "id": "bkHC",
-      "code_hash": "69f119d01a6bde176581bbe053dc6935",
-      "outputs": [
-        {
-          "type": "data",
-          "data": {
-            "text/plain": ""
-          }
-        }
-      ],
+      "code_hash": "f9499d66e1284cd62786f5f65d424f9e",
+      "outputs": [],
       "console": []
     },
     {
@@ -69,6 +55,18 @@
     {
       "id": "SFPL",
       "code_hash": "a2c430f9f2edef0f1317170af0e20035",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "73fda24d609caa24a40133111549afa1",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "ac923ff48c0a3162c0eee4b63e23e031",
       "outputs": [],
       "console": []
     }

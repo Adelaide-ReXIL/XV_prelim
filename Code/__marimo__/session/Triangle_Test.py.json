@@ -7,13 +7,27 @@
     {
       "id": "setup",
       "code_hash": "b12ab614eb697d77d5491ffc971fb0f6",
-      "outputs": [],
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {
       "id": "Hbol",
-      "code_hash": "5bf7b9f077bffc08fab443a4a6c8eb11",
-      "outputs": [],
+      "code_hash": "872b21005f9527f1a8780e8755e2e739",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
       "console": []
     },
     {

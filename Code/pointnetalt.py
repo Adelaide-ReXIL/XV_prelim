@@ -21,6 +21,9 @@ with app.setup:
     import torch.nn as nn
     import torch.nn.functional as F
     import random
+    import pickle
+    with open('model_normal.pkl', 'rb') as f:
+        model_diff = pickle.load(f)
 
 
 @app.cell
@@ -62,15 +65,15 @@ class PointCloud(Dataset):
         mesh = trimesh.load(path)
         pts = mesh.sample(self.n)  # (n, 3)
 
-        s = np.random.uniform(0.2, 0.8, size=(self.n, 1))
-
 
         # normalize x, y, z to 0..1
         mins = pts.min(axis=0, keepdims=True)
         maxs = pts.max(axis=0, keepdims=True)
         norm_pts = (pts - mins) / (maxs - mins + 1e-8)
 
-        pts_out = np.hstack([s, norm_pts])  # (n, 4)
+        s = model_diff.predict(pd.DataFrame(norm_pts, columns=[ "x", "y", "z"]))
+        s = (s - s.min()) / (s.max() - s.min() + 1e-8)
+        pts_out = np.hstack([s.reshape(-1, 1), norm_pts])  # (n, 4)
 
         label = np.zeros(len(self.classes))
         for cls in self.labels:
@@ -112,7 +115,7 @@ def _(df):
 
 
 @app.function
-def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
+def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples,s_thresh=1.25):
     """
     4D ball‐query where r_s (the radius along the 's' axis) is computed per-center:
       r_s^(k) = 1.5 * s_center_k
@@ -142,7 +145,7 @@ def ball_query_4d_dynamic_s(coords4d, centers4d, r_xyz, max_samples):
     xyz_centers = centers4d[..., 1:]          # (B, S, 3)
 
     # 2) Compute per-center s‐radius: r_s_dyn[b,k] = 1.5 * s_centers[b,k]
-    r_s_dyn = torch.clamp(1.25 * s_centers, min=0.0001, max=0.5)           # (B, S)
+    r_s_dyn = torch.clamp(s_thresh * s_centers, min=0.0001, max=0.5)           # (B, S)
 
     # 3) Compute |s_j – s_center_k| for all j,k:
     #    shape (B, S, N): 
@@ -291,7 +294,8 @@ class PointNetSetAbstraction(nn.Module):
         r_xyz=0.5,            # fixed radius for spatial (x,y,z)
         max_samples=32,
         use_geometry_centers=False,
-        num_segments=6
+        num_segments=6,
+        s_t=1.5
     ):
         super().__init__()
         self.npoint = npoint
@@ -300,6 +304,7 @@ class PointNetSetAbstraction(nn.Module):
         self.max_samples = max_samples
         self.use_geometry_centers = use_geometry_centers
         self.num_segments = num_segments
+        self.s_t=s_t
 
         # Build the MLP: input channels = mlp[0] (e.g. 8) → ...
         layers = []
@@ -351,7 +356,8 @@ class PointNetSetAbstraction(nn.Module):
                 coords4d,      # (B, N, 4)
                 centers4d,     # (B, S, 4)
                 self.r_xyz,    # fixed xyz‐radius
-                self.max_samples
+                self.max_samples,
+                s_thresh=self.s_t
             )  # neighbor_idx: (B, S, k), valid_mask: (B, S, k)
 
             # 4) Gather neighbor coords & features
@@ -388,24 +394,26 @@ class PointNetPP(nn.Module):
 
         # SA1: mlp[0]=8, use dynamic s‐radius = 1.5 * s_center, r_xyz=0.5
         self.sa1 = PointNetSetAbstraction(
-            npoint=512,
+            npoint=1024,
             mlp=[8, 64, 64, 128],
             s_scale_factor=1,
-            r_xyz=1.5,
+            r_xyz=1.25,
             max_samples=128,
             use_geometry_centers=True,
-            num_segments=8
+            num_segments=8,
+            s_t=1.25
         )
 
         # SA2: input = (l1_feats 128) + 4 dims = 132, dynamic s‐radius=1.5*s_center, r_xyz=0.25
         self.sa2 = PointNetSetAbstraction(
-            npoint=128,
+            npoint=512,
             mlp=[132, 128, 128, 256],
             s_scale_factor=1,
             r_xyz=0.75,
             max_samples=64,
             use_geometry_centers=True,
-            num_segments=6
+            num_segments=6,
+            s_t=1.5
         )
 
         # SA3: global, no query needed
@@ -413,9 +421,10 @@ class PointNetPP(nn.Module):
             npoint=None,
             mlp=[256, 256, 512, 1024],
             s_scale_factor=1,  # not used because npoint=None
-            r_xyz=0.3,
+            r_xyz=1.5,
             max_samples=16,
-            use_geometry_centers=False
+            use_geometry_centers=False,
+            s_t=1.25
         )
 
         self.classifier = nn.Sequential(
@@ -476,7 +485,7 @@ def _():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    num_epochs = 75
+    num_epochs = 50
     patience = 10
     best_val_loss = float('inf')
     counter = 0
@@ -520,12 +529,7 @@ def _():
 
 @app.cell
 def _(model):
-    torch.save(model, 'pointnetpp_4d_full8.pth')
-    return
-
-
-@app.cell
-def _():
+    torch.save(model, 'pointnetpp_4d_full13.pth')
     return
 
 

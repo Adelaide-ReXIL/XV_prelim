@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.11"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -21,9 +19,12 @@ with app.setup:
 @app.function
 def plot_3d_points(df):
     fig = plt.figure()
+    fig.patch.set_facecolor('white')
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(df['x'], df['y'], df['z'], c=df['SV'], cmap='viridis', s=10)
-    return plt.gca()
+    ax.set_facecolor('white')
+    ax.scatter(df['x'], df['y'], df['z'], c=df['SV'], cmap='RdYlGn', s=10)
+    ax.set_axis_off()
+    return ax
 
 
 @app.function

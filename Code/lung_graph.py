@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.2"
+__generated_with = "0.13.11"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -176,6 +174,10 @@ def lung_plot(path='',df=None,model=None,vmin=-0.22,vmax=0.89):
         fig = plt.figure(figsize=(12, 6))
 
         ax1 = fig.add_subplot(1, 2, 1, projection='3d')
+        ax1.set_facecolor('white')
+        ax1.set_axis_off()
+        
+        
 
 
 
